@@ -24,6 +24,9 @@ import Pages.PagePath exposing (PagePath)
 import Pages.Platform
 import Pages.StaticHttp as StaticHttp
 import Palette
+import Calculator exposing (Model,Msg,init,update,request,emptySelection)
+import Element exposing (html)
+
 
 
 manifest : Manifest.Config Pages.PathKey
@@ -34,10 +37,10 @@ manifest =
     , orientation = Manifest.Portrait
     , description = "elm-pages-starter - A statically typed site generator."
     , iarcRatingId = Nothing
-    , name = "elm-pages-starter"
+    , name = "netpositive.money"
     , themeColor = Just Color.white
     , startUrl = pages.index
-    , shortName = Just "elm-pages-starter"
+    , shortName = Just "netpositive.money"
     , sourceIcon = images.iconPng
     , icons = []
     }
@@ -52,12 +55,12 @@ type alias Rendered =
 -- main : Platform.Program Pages.Platform.Flags (Pages.Platform.Model Model Msg Metadata Rendered) (Pages.Platform.Msg Msg Metadata Rendered)
 
 
-main : Pages.Platform.Program Model Msg Metadata Rendered Pages.PathKey
+main : Pages.Platform.Program Calculator.Model Calculator.Msg Metadata Rendered Pages.PathKey
 main =
     Pages.Platform.init
-        { init = \_ -> init
+        { init = \_ -> Calculator.init
         , view = view
-        , update = update
+        , update = Calculator.update
         , subscriptions = subscriptions
         , documents = [ markdownDocument ]
         , manifest = manifest
@@ -110,29 +113,7 @@ markdownDocument =
     }
 
 
-type alias Model =
-    {}
-
-
-init : ( Model, Cmd Msg )
-init =
-    ( Model, Cmd.none )
-
-
-type alias Msg =
-    ()
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        () ->
-            ( model, Cmd.none )
-
-
---subscriptions : Model -> Sub Msg
-subscriptions _ _ _ =
-    Sub.none
+subscriptions _ _ = Calculator.subscriptions
 
 
 view :
@@ -147,12 +128,22 @@ view :
             , head : List (Head.Tag Pages.PathKey)
             }
 view siteMetadata page =
-    StaticHttp.succeed
+    StaticHttp.map (\loaded ->
         { view =
             \model viewForPage ->
-                Layout.view (pageView model siteMetadata page viewForPage) page
+                let newModel = { model | data = loaded.data
+                                       , compound = loaded.compound
+                                       , totalBtc = loaded.totalBtc
+                                       , perBtcComp = loaded.perBtcComp
+                                       , selection = if (model.selection == emptySelection) then loaded.selection else model.selection
+                                       , startString = if (model.startString == "YYYY-MM-DD") then loaded.startString else model.startString
+                                       , endString = if (model.endString == "YYYY-MM-DD") then loaded.endString else model.endString
+                               }
+                in Layout.view (pageView newModel siteMetadata page viewForPage) page
         , head = head page.frontmatter
-        }
+        } )
+        request
+
 
 
 pageView :
@@ -167,6 +158,17 @@ pageView model siteMetadata page viewForPage =
             { title = metadata.title
             , body =
                 [ viewForPage
+                ]
+
+            --        |> Element.textColumn
+            --            [ Element.width Element.fill
+            --            ]
+            }
+
+        Metadata.Calculator metadata ->
+            { title = metadata.title
+            , body =
+                [ Calculator.view model |> html
                 ]
 
             --        |> Element.textColumn
@@ -218,7 +220,23 @@ head metadata =
                 Metadata.Page meta ->
                     Seo.summaryLarge
                         { canonicalUrlOverride = Nothing
-                        , siteName = "elm-pages-starter"
+                        , siteName = "netpositive.money"
+                        , image =
+                            { url = images.iconPng
+                            , alt = "elm-pages logo"
+                            , dimensions = Nothing
+                            , mimeType = Nothing
+                            }
+                        , description = siteTagline
+                        , locale = Nothing
+                        , title = meta.title
+                        }
+                        |> Seo.website
+
+                Metadata.Calculator meta ->
+                    Seo.summaryLarge
+                        { canonicalUrlOverride = Nothing
+                        , siteName = "netpositive.money"
                         , image =
                             { url = images.iconPng
                             , alt = "elm-pages logo"
@@ -271,7 +289,7 @@ head metadata =
                     in
                     Seo.summary
                         { canonicalUrlOverride = Nothing
-                        , siteName = "elm-pages-starter"
+                        , siteName = "netpositive.money"
                         , image =
                             { url = meta.avatar
                             , alt = meta.name ++ "'s elm-pages articles."

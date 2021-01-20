@@ -27,7 +27,7 @@ view document page =
     , body =
         Element.column
             [ Element.width Element.fill ]
-            [ header page.path
+            [ header page.path document.title
             , Element.column
                 [ Element.padding 30
                 , Element.spacing 40
@@ -46,8 +46,8 @@ view document page =
     }
 
 
-header : PagePath Pages.PathKey -> Element msg
-header currentPath =
+header : PagePath Pages.PathKey -> String -> Element msg
+header currentPath title =
     Element.column [ Element.width Element.fill ]
         [ Element.el
             [ Element.height (Element.px 4)
@@ -74,13 +74,14 @@ header currentPath =
                 , label =
                     Element.row [ Font.size 30, Element.spacing 16 ]
                         [ DocumentSvg.view
-                        , Element.text "elm-pages-starter"
+                        , Element.text title
                         ]
                 }
             , Element.row [ Element.spacing 15 ]
-                [ elmDocsLink
-                , githubRepoLink
+                [ highlightableLink currentPath Pages.pages.faq.directory "FAQ"
                 , highlightableLink currentPath Pages.pages.blog.directory "Blog"
+                , highlightableLink currentPath Pages.pages.calculator.directory "Calculator"
+                , githubRepoLink
                 ]
             ]
         ]
@@ -113,7 +114,7 @@ highlightableLink currentPath linkDirectory displayName =
 githubRepoLink : Element msg
 githubRepoLink =
     Element.newTabLink []
-        { url = "https://github.com/dillonkearns/elm-pages"
+        { url = "https://github.com/netpositive-money/netpositive-money.github.io"
         , label =
             Element.image
                 [ Element.width (Element.px 22)

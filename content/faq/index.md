@@ -3,9 +3,9 @@ title: netpositive.money
 type: page
 ---
 
-# netpositive.money
+# netpositive.money 
 
-## Mission Statement
+## frequently asked questions
 
 **Motivation**
 

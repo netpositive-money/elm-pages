@@ -1,6 +1,6 @@
 ---
 title: netpositive.money
-type: page
+type: calculator
 ---
 
 # netpositive.money
