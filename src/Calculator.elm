@@ -36,6 +36,9 @@ import Task
 import Time exposing (Posix, millisToPosix, posixToMillis, utc)
 import Pages.StaticHttp as StaticHttp
 import Pages.Secrets as Secrets
+import List.Extra exposing (splitWhen)
+import List.Extra exposing (dropWhile)
+import List.Extra exposing (dropWhileRight)
 
 
 main : Program () Model Msg
@@ -342,28 +345,21 @@ mkcompound nd =
     in summedList
 
 
+mkPerBtcData : Data -> Data -> Data
+mkPerBtcData nd amts = case nd of
+                           []    -> []
+                           x::xs -> let
+                                        rest = dropWhileRight (\d -> fromTime d.time < fromTime x.time) amts
+                                    in
+                                    case rest of
+                                        []    -> {time = x.time, amount = x.amount/21000}::mkPerBtcData xs []
+                                        y::ys -> {time = x.time, amount = x.amount/(y.amount/1000)}::mkPerBtcData xs rest
+
+
+                           
+
 mkPerBtcComp : Data -> Data -> Data
-mkPerBtcComp nd amts =
-    let
-        ( sum, summedList ) =
-            List.foldl f ( 0, [] ) nd
-
-        f d ( s, l ) =
-            let
-                ns = s + d.amount / firstAmount amts d.time
-            in
-                ( ns, l ++ [ { d | amount = ns } ] )
-    in summedList
-
-
-firstAmount : Data -> Posix -> Float
-firstAmount ls t =
-    case find (\d -> fromTime d.time >= fromTime t) ls of
-        Just d ->
-            d.amount / 1000
-
-        Nothing ->
-            21000
+mkPerBtcComp nd amts = mkcompound (mkPerBtcData nd amts)
 
 
 addCmd : Cmd Msg -> Model -> ( Model, Cmd Msg )
