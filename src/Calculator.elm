@@ -1,13 +1,12 @@
-module Calculator exposing (Model,Msg,subscriptions,init,update,view,request,emptySelection)
+module Calculator exposing (Model, Msg, emptySelection, init, request, subscriptions, update, view)
 
 import Browser
-import Browser.Dom exposing (getViewport)
-import Browser.Dom exposing (Viewport)
+import Browser.Dom exposing (Viewport, getViewport)
 import Browser.Events exposing (onResize)
 import Csv
-import Html exposing (input, p, text)
-import Html.Attributes exposing (placeholder, style, value)
-import Html.Events exposing (onInput)
+import Element exposing (Element,text,paragraph,column,html)
+import Element.Input as Input exposing (placeholder,labelAbove)
+import Html
 import Http
 import Iso8601 exposing (fromTime, toTime)
 import LineChart
@@ -28,41 +27,43 @@ import LineChart.Interpolation as Interpolation
 import LineChart.Junk as Junk
 import LineChart.Legends as Legends
 import LineChart.Line as Line
-import List.Extra exposing (find)
+import List.Extra exposing (dropWhile, dropWhileRight, find, splitWhen)
+import Pages.Secrets as Secrets
+import Pages.StaticHttp as StaticHttp
 import String exposing (left)
 import Svg
 import Svg.Attributes
 import Task
 import Time exposing (Posix, millisToPosix, posixToMillis, utc)
-import Pages.StaticHttp as StaticHttp
-import Pages.Secrets as Secrets
-import List.Extra exposing (splitWhen)
-import List.Extra exposing (dropWhile)
-import List.Extra exposing (dropWhileRight)
-
-
-main : Program () Model Msg
-main =
-    Browser.element
-        { init = \_ -> init
-        , update = update
-        , view = view
-        , subscriptions = subscriptions -- always Sub.none
-        }
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch [ onResize SetScreenSize ]
 
 
+
 -- MODEL
 
+
 factor : Float
-factor = 1.34 --ktCo2/day/Twh/year
-              --
+factor =
+    1.34
+
+
+
+--ktCo2/day/Twh/year
+--
+
+
 offset : Float
-offset = 0.049 -- MtCo2
-               --
+offset =
+    0.049
+
+
+-- MtCo2
+--
+
+
 type alias Model =
     { data : Data
     , compound : Data
@@ -83,7 +84,11 @@ type alias Model =
 type alias Selection =
     { start : Maybe Datum
     , end : Maybe Datum
-    } ---beware, start might be later than end!
+    }
+
+
+
+---beware, start might be later than end!
 
 
 type alias Data =
@@ -99,6 +104,7 @@ type alias Datum =
 
 -- INIT
 
+
 init : ( Model, Cmd Msg )
 init =
     ( { data = []
@@ -112,67 +118,88 @@ init =
       , startString = "YYYY-MM-DD"
       , endString = "YYYY-MM-DD"
       , btcS = ""
-      , width = 1920
-      , height =1080
+      , width = 1280
+      , height = 720
       }
-    , Task.perform (\vp -> let get = (\s -> s vp.viewport |> round) in
-                               SetScreenSize (get .width) (get .height))
-                                getViewport
+    , Task.perform
+        (\vp ->
+            let
+                get =
+                    \s -> s vp.viewport |> round
+            in
+            SetScreenSize (get .width) (get .height)
+        )
+        getViewport
     )
 
-request : StaticHttp.Request
-          { data : Data
-          , compound : Data
-          , totalBtc : Data
-          , perBtcComp : Data
-          , selection : Selection
-          , startString : String
-          , endString : String
-          }
-request = StaticHttp.map2
-          (\nd tbtc ->
-               let
-                cp = mkcompound nd
-                s = List.head cp
-                e = List.head <| List.drop (List.length cp - 1) cp
-                dTS = Maybe.withDefault "YYYY-MM-DD" << Maybe.map datumToTimeString
-               in
-                   { data = nd
-                   , compound = cp
-                   , selection =
-                         { start = s
-                         , end = e
-                         }
-                   , startString = dTS s
-                   , endString = dTS e
-                   , perBtcComp = mkPerBtcComp nd tbtc
-                   , totalBtc = tbtc
-                   }
-          )
-          (StaticHttp.unoptimizedRequest
-              (Secrets.succeed
-                   { url = "https://cbeci.org/api/csv"
-                   , method = "GET"
-                   , headers = []
-                   , body = StaticHttp.emptyBody
-                   }
-              )
-              (StaticHttp.expectString
-                   (\content -> parseData content (parsePowRecord factor)))
-          )
-          (StaticHttp.unoptimizedRequest
-               (Secrets.succeed
-                    { url = "https://api.blockchain.info/charts/total-bitcoins?timespan=100years&format=csv&cors=true"
-                    , method = "GET"
-                    , headers = []
-                    , body = StaticHttp.emptyBody
-                    }
-               )
-               (StaticHttp.expectString
-                    (\content -> parseData content parseBtcRecord))
-          )
+
+request :
+    StaticHttp.Request
+        { data : Data
+        , compound : Data
+        , totalBtc : Data
+        , perBtcComp : Data
+        , selection : Selection
+        , startString : String
+        , endString : String
+        }
+request =
+    StaticHttp.map2
+        (\nd tbtc ->
+            let
+                cp =
+                    mkcompound nd
+
+                s =
+                    List.head cp
+
+                e =
+                    List.head <| List.drop (List.length cp - 1) cp
+
+                dTS =
+                    Maybe.withDefault "YYYY-MM-DD" << Maybe.map datumToTimeString
+            in
+            { data = nd
+            , compound = cp
+            , selection =
+                { start = s
+                , end = e
+                }
+            , startString = dTS s
+            , endString = dTS e
+            , perBtcComp = mkPerBtcComp nd tbtc
+            , totalBtc = tbtc
+            }
+        )
+        (StaticHttp.unoptimizedRequest
+            (Secrets.succeed
+                { url = "https://cbeci.org/api/csv"
+                , method = "GET"
+                , headers = []
+                , body = StaticHttp.emptyBody
+                }
+            )
+            (StaticHttp.expectString
+                (\content -> parseData content (parsePowRecord factor))
+            )
+        )
+        (StaticHttp.unoptimizedRequest
+            (Secrets.succeed
+                { url = "https://api.blockchain.info/charts/total-bitcoins?timespan=13years&format=csv&cors=true"
+                , method = "GET"
+                , headers = []
+                , body = StaticHttp.emptyBody
+                }
+            )
+            (StaticHttp.expectString
+                (\content -> parseData content parseBtcRecord)
+            )
+        )
+
+
 
 -- API
+
 
 emptySelection : Selection
 emptySelection =
@@ -223,7 +250,7 @@ setSelectionString start end model =
 
 type Msg
     = SetScreenSize Int Int
-        -- Chart 1
+      -- Chart 1
     | Hold Data
     | Move Data
     | Drop Data
@@ -239,9 +266,12 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SetScreenSize w h -> { model | height = h
-                                     , width = w }
-                             |> addCmd Cmd.none
+        SetScreenSize w h ->
+            { model
+                | height = h
+                , width = w
+            }
+                |> addCmd Cmd.none
 
         Hold point ->
             model
@@ -299,33 +329,37 @@ update msg model =
 
         ChangeStart timeString ->
             addCmd Cmd.none <|
-                let selection = model.selection
+                let
+                    selection =
+                        model.selection
                 in
-                    { model
-                        | startString = timeString
-                        , selection =
-                          case toTime timeString of
-                              Ok ts ->
+                { model
+                    | startString = timeString
+                    , selection =
+                        case toTime timeString of
+                            Ok ts ->
                                 { selection | start = find (\d -> d.time == ts) model.compound }
 
-                              Err _ ->
+                            Err _ ->
                                 selection
-                    }
+                }
 
         ChangeEnd timeString ->
             addCmd Cmd.none <|
-                let selection = model.selection
+                let
+                    selection =
+                        model.selection
                 in
-                    { model
-                        | endString = timeString
-                        , selection =
-                          case toTime timeString of
-                              Ok ts ->
+                { model
+                    | endString = timeString
+                    , selection =
+                        case toTime timeString of
+                            Ok ts ->
                                 { selection | end = find (\d -> d.time == ts) model.compound }
 
-                              Err _ ->
+                            Err _ ->
                                 selection
-                    }
+                }
 
         ChangeBtc bS ->
             addCmd Cmd.none <|
@@ -338,28 +372,41 @@ update msg model =
 mkcompound : Data -> Data
 mkcompound nd =
     let
-        ( sum, summedList ) = List.foldl f ( 0, [] ) nd
+        ( sum, summedList ) =
+            List.foldl f ( 0, [] ) nd
 
-        f d ( s, l ) = let ns = s + d.amount / 1000 in
-                       ( ns, l ++ [ { d | amount = ns } ] )
-    in summedList
+        f d ( s, l ) =
+            let
+                ns =
+                    s + d.amount / 1000
+            in
+            ( ns, l ++ [ { d | amount = ns } ] )
+    in
+    summedList
 
 
 mkPerBtcData : Data -> Data -> Data
-mkPerBtcData nd amts = case nd of
-                           []    -> []
-                           x::xs -> let
-                                        rest = dropWhileRight (\d -> fromTime d.time < fromTime x.time) amts
-                                    in
-                                    case rest of
-                                        []    -> {time = x.time, amount = x.amount/21000}::mkPerBtcData xs []
-                                        y::ys -> {time = x.time, amount = x.amount/(y.amount/1000)}::mkPerBtcData xs rest
+mkPerBtcData nd amts =
+    case nd of
+        [] ->
+            []
 
+        x :: xs ->
+            let
+                rest =
+                    dropWhileRight (\d -> fromTime d.time < fromTime x.time) amts
+            in
+            case rest of
+                [] ->
+                    { time = x.time, amount = x.amount / 21000 } :: mkPerBtcData xs []
 
-                           
+                y :: ys ->
+                    { time = x.time, amount = x.amount / (y.amount / 1000) } :: mkPerBtcData xs rest
+
 
 mkPerBtcComp : Data -> Data -> Data
-mkPerBtcComp nd amts = mkcompound (mkPerBtcData nd amts)
+mkPerBtcComp nd amts =
+    mkcompound (mkPerBtcData nd amts)
 
 
 addCmd : Cmd Msg -> Model -> ( Model, Cmd Msg )
@@ -415,66 +462,66 @@ parseBtcRecord l =
 -- VIEW
 
 
-view : Model -> Html.Html Msg
+view : Model -> Element Msg
 view model =
-    Html.div [ Html.Attributes.style "display" "flex" ] <|
-        [ p [ style "white-space" "pre" ] <|
+    let
+        s =
+            model.startString
+
+        e =
+            model.endString
+    in
+    case ( model.selection.start, model.selection.end ) of
+        ( Just startDatum, Just endDatum ) ->
             let
-                s = model.startString
-                e = model.endString
+                total =
+                    abs (endDatum.amount - startDatum.amount)
             in
-                (case ( model.selection.start, model.selection.end ) of
+                column [] (
+            [ chart1 model |> html
+            , chart2 model |> html
+            , text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today.")
+            , text ("\nCalculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate model ++ ".")
+            , text "\nPlease select or enter time interval: "
+            , Input.text []{placeholder=Nothing, text=s, onChange=ChangeStart,label=labelAbove[]<| text"start date" }
+            , Input.text []{placeholder=Nothing, text=e, onChange=ChangeEnd,label=labelAbove[]<| text"end date" }
 
-                     ( Just startDatum, Just endDatum ) ->
-                        (let
-                            total = abs(endDatum.amount - startDatum.amount)
-                         in
-                            [ chart1 model
-                            , chart2 model
-                            , text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today.")
-                            , text ("\nCalculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate model ++ ".")
-                            , text "\nPlease select or enter time interval: "
-                            , input [ placeholder s, value s, onInput ChangeStart ] []
-                            , input [ placeholder e, value e, onInput ChangeEnd ] []
+            --   , chartZoom model startDatum endDatum
+            , text ("\nSelected: " ++ datumToTimeString startDatum ++ " to " ++ datumToTimeString endDatum)
+            , text
+                ("\nTotal Co2 in this time frame: "
+                    ++ (String.fromFloat <| round100 <| total)
+                    ++ " Mt"
+                )
+            ]  
+                ++ (let
+                        perBtcAmount =
+                            co2perBtcIn model.perBtcComp startDatum endDatum
+                    in
+                    [ text
+                        ("\nPer bitcoin when divided by the total amount in existence at every day in the interval: "
+                            ++ (String.fromFloat <| round100 <| perBtcAmount) ++ "t."
+                        )
+                    , Input.text []{ placeholder= Just <| placeholder[] <| text"0.00000001" , text= model.btcS, onChange= ChangeBtc,label=labelAbove[]<| text "\nHow much Bitcoin do you want to offset?"  }]
+                        ++ (case String.toFloat model.btcS of
+                                Nothing ->
+                                    []
 
-                            --   , chartZoom model startDatum endDatum
-                            , text ("\nSelected: " ++ datumToTimeString startDatum)
-                            , text (" to " ++ datumToTimeString endDatum)
-                            , text
-                                ("\nTotal Co2 in this time frame: "
-                                    ++ (String.fromFloat <| round100 <| total)
-                                    ++ " Mt"
-                                )
-                            ]
-                            ++ let perBtcAmount = co2perBtcIn model.perBtcComp startDatum endDatum in
-                               [ text
-                                     ("\nPer bitcoin when divided by the total amount in existence at every day in the interval: "
-                                          ++ (String.fromFloat <| round100 <| perBtcAmount)
-                                     )
-                               ]
-                            ++ [ text " t." ]
-                            ++ [ text "\nHow much Bitcoin do you want to offset? "
-                               , input [ placeholder "0.00000001", value model.btcS, onInput ChangeBtc ] []
-                               ]
-                            ++ case String.toFloat model.btcS of
-                                   Nothing ->
-                                        []
-
-                                   Just btc ->
-                                        [ text ("\nThis is equivalent to "
+                                Just btc ->
+                                    [ text
+                                        ("\nThis is equivalent to "
                                             ++ (String.fromFloat <| round100 <| perBtcAmount * btc)
                                             ++ " t Co2.\nHappy offsetting, and don't forget to tell us about it so we can keep count!"
-                                               )
-                                        ])
+                                        )
+                                    ]
+                           )
+                   ) )
 
-                     _ ->
-                            [ chart1 model
-                            , chart2 model
-                            , text "Please select or enter a time interval: "
-                            , input [ placeholder "start date", value s, onInput ChangeStart ] []
-                            , input [ placeholder "end date", value e, onInput ChangeEnd ] []
-                            ]
-                     )
+        _ ->
+            column []
+                [ chart1 model |> html
+                , chart2 model |> html
+                , text "Please select a time interval!"
                 ]
 
 
@@ -486,47 +533,47 @@ chart1 : Model -> Html.Html Msg
 chart1 model =
     LineChart.viewCustom
         (chartConfig
-             { y = yAxis1 (model.height)
-             , area = Area.normal 0.5
-             , range = Range.default
-             , junk =
-                 Junk.hoverOne model.hinted
-                     [ ( "date", datumToTimeString )
-                     , ( "kt/d", String.fromFloat << round100 << .amount )
-                     ]
-             , events = Events.hoverOne Hint
-             , legends = Legends.default
-             , dots = Dots.custom (Dots.full 0)
-             , id = "line-chart"
-             , width = model.width
-             }
+            { y = yAxis1 model.height
+            , area = Area.normal 0.5
+            , range = Range.default
+            , junk =
+                Junk.hoverOne model.hinted
+                    [ ( "date", datumToTimeString )
+                    , ( "kt/d", String.fromFloat << round100 << .amount )
+                    ]
+            , events = Events.hoverOne Hint
+            , legends = Legends.default
+            , dots = Dots.custom (Dots.full 0)
+            , id = "line-chart"
+            , width = model.width
+            }
         )
-    [ LineChart.line Colors.pink Dots.circle "CO2" model.data ]
+        [ LineChart.line Colors.pink Dots.circle "CO2" model.data ]
 
 
 chart2 : Model -> Html.Html Msg
 chart2 model =
     LineChart.viewCustom
         (chartConfig
-             { y = yAxis2 (model.height)
-             , area = Area.default
-             , range = Range.default
-             , junk = junkConfig model
-             , legends = Legends.default
-             , events =
-                 Events.custom
-                     [ Events.onWithOptions "mousedown" (Events.Options True True False) Hold Events.getNearestX
-                     , Events.onWithOptions "mousemove" (Events.Options True True False) Move Events.getNearestX
-                     , Events.onWithOptions "mouseup" (Events.Options True True True) Drop Events.getNearestX
-                     , Events.onWithOptions "mouseleave" (Events.Options True True False) LeaveChart Events.getNearestX
-                     , Events.onWithOptions "mouseleave" (Events.Options True True True) LeaveContainer Events.getNearestX
-                     ]
-             , dots = Dots.custom (Dots.full 0)
-             , id = "line-chart"
-             , width = model.width
-             }
+            { y = yAxis2 model.height
+            , area = Area.default
+            , range = Range.default
+            , junk = junkConfig model
+            , legends = Legends.default
+            , events =
+                Events.custom
+                    [ Events.onWithOptions "mousedown" (Events.Options True True False) Hold Events.getNearestX
+                    , Events.onWithOptions "mousemove" (Events.Options True True False) Move Events.getNearestX
+                    , Events.onWithOptions "mouseup" (Events.Options True True True) Drop Events.getNearestX
+                    , Events.onWithOptions "mouseleave" (Events.Options True True False) LeaveChart Events.getNearestX
+                    , Events.onWithOptions "mouseleave" (Events.Options True True True) LeaveContainer Events.getNearestX
+                    ]
+            , dots = Dots.custom (Dots.full 0)
+            , id = "line-chart"
+            , width = model.width
+            }
         )
-    [ LineChart.line Colors.blue Dots.circle "CO2 total" model.compound ]
+        [ LineChart.line Colors.blue Dots.circle "CO2 total" model.compound ]
 
 
 junkConfig : Model -> Junk.Config Datum msg
@@ -588,14 +635,14 @@ chartConfig : Config -> LineChart.Config Datum Msg
 chartConfig { y, range, junk, events, legends, dots, id, area, width } =
     { y = y
     , x = xAxis range width
-    , container =
-        Container.custom
-            { attributesHtml = [ Html.Attributes.style "font-family" "monospace" ]
-            , attributesSvg = []
-            , size = Container.static
-            , margin = Container.Margin 30 200 60 50
-            , id = id
-            }
+    , container = Container.default id
+        -- Container.custom
+        --     { attributesHtml = [ Html.Attributes.style "font-family" "monospace" ]
+        --     , attributesSvg = []
+        --     , size = Container.static
+        --     , margin = Container.Margin 30 200 60 50
+        --     , id = id
+        --     }
     , interpolation = Interpolation.monotone
     , intersection = Intersection.default
     , legends = legends
@@ -610,12 +657,12 @@ chartConfig { y, range, junk, events, legends, dots, id, area, width } =
 
 yAxis1 : Int -> Axis.Config Datum Msg
 yAxis1 h =
-    Axis.full (h//2) "kt/day" .amount
+    Axis.full (h // 2) "kt/day" .amount
 
 
 yAxis2 : Int -> Axis.Config Datum Msg
 yAxis2 h =
-    Axis.full (h//2) "Mt" .amount
+    Axis.full (h // 2) "Mt" .amount
 
 
 xAxis : Range.Config -> Int -> Axis.Config Datum Msg
@@ -663,7 +710,8 @@ findOffsetDate model =
 
                     else
                         s
-    in fOD "2009-03-01" model.data
+    in
+    fOD "2009-03-01" model.data
 
 
 co2perBtcIn : Data -> Datum -> Datum -> Float
@@ -677,4 +725,4 @@ co2perBtcIn l startDatum endDatum =
                 Just d ->
                     d.amount
     in
-    abs(findAmount endDatum - findAmount startDatum)
+    abs (findAmount endDatum - findAmount startDatum)

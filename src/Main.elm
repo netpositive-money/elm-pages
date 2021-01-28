@@ -168,12 +168,8 @@ pageView model siteMetadata page viewForPage =
         Metadata.Calculator metadata ->
             { title = metadata.title
             , body =
-                [ Calculator.view model |> html
-                ]
-
-            --        |> Element.textColumn
-            --            [ Element.width Element.fill
-            --            ]
+                [ Calculator.view model ]
+                
             }
 
         Metadata.Article metadata ->
