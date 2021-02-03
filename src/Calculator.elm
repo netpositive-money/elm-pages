@@ -37,8 +37,9 @@ import Time exposing (Posix, millisToPosix, posixToMillis, utc)
 import OptimizedDecoder exposing (field,list,map,map2,int,string,float,andThen,fail,succeed)
 import List.Extra exposing (last)
 import List exposing (head)
-import OptimizedDecoder exposing (Decoder)
-import Parser
+import Element.Lazy exposing (lazy2)
+import Element.Lazy exposing (lazy)
+import Html.Lazy
 
 
 subscriptions : Model -> Sub Msg
@@ -152,19 +153,6 @@ request2 =
              "https://api.blockchain.info/charts/total-bitcoins?timespan=13years&format=json&cors=true"
         )
     (field "values" <| list <| map2 Datum (field "x" <| map (\i -> millisToPosix (1000 * i)) int) (field "y" float))
-
-timeDecoder : Decoder Time.Posix
-timeDecoder =
-    string
-        |> andThen
-            (\str ->
-                case toTime str of
-                    Err deadEnds ->
-                        fail <| Parser.deadEndsToString deadEnds
-
-                    Ok time ->
-                        succeed time
-            )
 
 
 
@@ -348,7 +336,7 @@ mkcompound nd =
         f d ( s, l ) =
             let
                 ns =
-                    s + d.amount / 1000
+                    s + d.amount
             in
             ( ns, l ++ [ { d | amount = ns } ] )
     in
@@ -364,7 +352,7 @@ mkPerBtcData nd amts =
         x :: xs ->
             let
                 rest =
-                    dropWhileRight (\d -> fromTime d.time < fromTime x.time) amts
+                    dropWhile (\d -> fromTime d.time < fromTime x.time) amts
             in
             case rest of
                 [] ->
@@ -413,27 +401,15 @@ parsePowRecord f l =
             Nothing
 
 
-parseBtcRecord : List String -> Maybe Datum
-parseBtcRecord l =
-    case l of
-        [ ts, am ] ->
-            case ( toTime (left 10 ts), String.toFloat am ) of
-                ( Ok t, Just f ) ->
-                    Just { time = t, amount = f }
-
-                _ ->
-                    Nothing
-
-        _ ->
-            Nothing
-
-
 
 -- VIEW
 
 
 view : Data-> Data -> Model -> Element Msg
-view data tbtc model =
+view d b m = lazy2 (eagerView m) d b
+
+eagerView: Model -> Data -> Data -> Element Msg
+eagerView model data tbtc =
     let
         compound = mkcompound data
         perBtcComp = mkPerBtcComp data tbtc
@@ -443,17 +419,17 @@ view data tbtc model =
         eD = orLazy model.selection.end (\() -> last compound)
     in case (sD,eD) of
            (Just startDatum, Just endDatum) -> column [] (
-                          [ chart1 data model |> html
-                          , chart2 compound model |> html
-                          , text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today.")
-                          , text ("\nCalculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate compound ++ ".")
-                          , text "\nPlease select or enter time interval: "
-                          , Input.text []{placeholder=Nothing, text=s, onChange=(ChangeStart compound),label=labelAbove[]<| text"start date" }
-                          , Input.text []{placeholder=Nothing, text=e, onChange=(ChangeEnd compound),label=labelAbove[]<| text"end date" }
-                          , text ("\nSelected: " ++ datumToTimeString startDatum ++ " to " ++ datumToTimeString endDatum)
-                          , text
+                          [ chart1 data model |> lazy html
+                          , chart2 compound model |> lazy html
+                          , lazy text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today.")
+                          , lazy text ("\nCalculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate compound ++ ".")
+                          , lazy text "\nPlease select or enter time interval: "
+                          , lazy (Input.text []){placeholder=Nothing, text=s, onChange=(ChangeStart compound),label=labelAbove[]<| text"start date" }
+                          , lazy (Input.text []){placeholder=Nothing, text=e, onChange=(ChangeEnd compound),label=labelAbove[]<| text"end date" }
+                          , lazy text ("\nSelected: " ++ datumToTimeString startDatum ++ " to " ++ datumToTimeString endDatum)
+                          , lazy text
                                 ("\nTotal Co2 in this time frame: "
-                                     ++ (String.fromFloat <| round100 <| abs (endDatum.amount - startDatum.amount))
+                                     ++ (String.fromFloat <| round100 <| abs (endDatum.amount - startDatum.amount) / 1000)
                                      ++ " Mt"
                                 )
                           ]
@@ -461,17 +437,17 @@ view data tbtc model =
                                      perBtcAmount =
                                          co2perBtcIn perBtcComp startDatum endDatum
                                 in
-                                    [ text
+                                    [ lazy text
                                           ("\nPer bitcoin when divided by the total amount in existence at every day in the interval: "
                                                ++ (String.fromFloat <| round100 <| perBtcAmount) ++ "t."
                                           )
-                                    , Input.text []{ placeholder= Just <| placeholder[] <| text"0.00000001" , text= model.btcS, onChange= ChangeBtc,label=labelAbove[]<| text "\nHow much Bitcoin do you want to offset?"  }]
+                                    , Input.text []{ placeholder= Just <| placeholder[] <| text"0.00000001" , text= model.btcS, onChange= ChangeBtc,label=labelAbove[]<| text "\nHow many bitcoin do you want to offset?"  }]
                                 ++ (case String.toFloat model.btcS of
                                         Nothing ->
                                             []
 
                                         Just btc ->
-                                            [ text
+                                            [ lazy text
                                               ("\nThis is equivalent to "
                                                    ++ (String.fromFloat <| round100 <| perBtcAmount * btc)
                                                    ++ " t Co2.\nHappy offsetting, and don't forget to tell us about it so we can keep count!"
@@ -487,7 +463,7 @@ view data tbtc model =
 
 chart1 : Data -> Model -> Html.Html Msg
 chart1 data model =
-    LineChart.viewCustom
+    Html.Lazy.lazy2 LineChart.viewCustom
         (chartConfig
             { y = yAxis1 model.height
             , area = Area.normal 0.5
@@ -509,7 +485,7 @@ chart1 data model =
 
 chart2 : Data -> Model -> Html.Html Msg
 chart2 compound model =
-    LineChart.viewCustom
+    Html.Lazy.lazy2 LineChart.viewCustom
         (chartConfig
             { y = yAxis2 model.height
             , area = Area.default

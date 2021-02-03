@@ -25,7 +25,7 @@ import Pages.Platform
 import Pages.StaticHttp as StaticHttp
 import Palette
 import Calculator exposing (Model,Msg,init,update,request1,request2,emptySelection, Data)
-import Element exposing (html)
+
 
 
 
@@ -314,7 +314,7 @@ head metadata =
 
 canonicalSiteUrl : String
 canonicalSiteUrl =
-    "https://elm-pages-starter.netlify.com"
+    "https://netpositive.money"
 
 
 siteTagline : String
