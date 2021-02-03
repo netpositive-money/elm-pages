@@ -24,7 +24,7 @@ import Pages.PagePath exposing (PagePath)
 import Pages.Platform
 import Pages.StaticHttp as StaticHttp
 import Palette
-import Calculator exposing (Model,Msg,init,update,request,emptySelection)
+import Calculator exposing (Model,Msg,init,update,request1,request2,emptySelection, Data)
 import Element exposing (html)
 
 
@@ -128,31 +128,24 @@ view :
             , head : List (Head.Tag Pages.PathKey)
             }
 view siteMetadata page =
-    StaticHttp.map (\loaded ->
+    StaticHttp.map2 (\data tbtc ->
         { view =
             \model viewForPage ->
-                let newModel = { model | data = loaded.data
-                                       , compound = loaded.compound
-                                       , totalBtc = loaded.totalBtc
-                                       , perBtcComp = loaded.perBtcComp
-                                       , selection = if (model.selection == emptySelection) then loaded.selection else model.selection
-                                       , startString = if (model.startString == "YYYY-MM-DD") then loaded.startString else model.startString
-                                       , endString = if (model.endString == "YYYY-MM-DD") then loaded.endString else model.endString
-                               }
-                in Layout.view (pageView newModel siteMetadata page viewForPage) page
+              Layout.view (pageView data tbtc model siteMetadata page viewForPage) page
         , head = head page.frontmatter
         } )
-        request
-
+        request1
+        request2
 
 
 pageView :
-    Model
+    Calculator.Data -> Calculator.Data
+    -> Model
     -> List ( PagePath Pages.PathKey, Metadata )
     -> { path : PagePath Pages.PathKey, frontmatter : Metadata }
     -> Rendered
     -> { title : String, body : List (Element Msg) }
-pageView model siteMetadata page viewForPage =
+pageView data tbtc model siteMetadata page viewForPage =
     case page.frontmatter of
         Metadata.Page metadata ->
             { title = metadata.title
@@ -168,8 +161,7 @@ pageView model siteMetadata page viewForPage =
         Metadata.Calculator metadata ->
             { title = metadata.title
             , body =
-                [ Calculator.view model ]
-                
+                [ Calculator.view data tbtc model ]
             }
 
         Metadata.Article metadata ->

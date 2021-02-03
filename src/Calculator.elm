@@ -1,13 +1,11 @@
-module Calculator exposing (Model, Msg, emptySelection, init, request, subscriptions, update, view)
+module Calculator exposing (Model, Msg, emptySelection, init, request1, request2, subscriptions, update, view, Data)
 
-import Browser
-import Browser.Dom exposing (Viewport, getViewport)
+import Browser.Dom exposing (getViewport)
 import Browser.Events exposing (onResize)
 import Csv
 import Element exposing (Element,text,paragraph,column,html)
 import Element.Input as Input exposing (placeholder,labelAbove)
 import Html
-import Http
 import Iso8601 exposing (fromTime, toTime)
 import LineChart
 import LineChart.Area as Area
@@ -31,10 +29,17 @@ import List.Extra exposing (dropWhile, dropWhileRight, find, splitWhen)
 import Pages.Secrets as Secrets
 import Pages.StaticHttp as StaticHttp
 import String exposing (left)
+import Maybe.Extra exposing (orLazy)
 import Svg
 import Svg.Attributes
 import Task
 import Time exposing (Posix, millisToPosix, posixToMillis, utc)
+import OptimizedDecoder exposing (field,list,map,map2,int,string,float,andThen,fail,succeed)
+import List.Extra exposing (last)
+import List exposing (head)
+import OptimizedDecoder exposing (Decoder)
+import Parser
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -65,11 +70,7 @@ offset =
 
 
 type alias Model =
-    { data : Data
-    , compound : Data
-    , totalBtc : Data
-    , perBtcComp : Data
-    , hovered : Maybe Datum
+    { hovered : Maybe Datum
     , selection : Selection
     , dragging : Bool
     , hinted : Maybe Datum
@@ -107,11 +108,7 @@ type alias Datum =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { data = []
-      , compound = []
-      , totalBtc = []
-      , perBtcComp = []
-      , hovered = Nothing
+    ( { hovered = Nothing
       , selection = emptySelection
       , dragging = False
       , hinted = Nothing
@@ -133,68 +130,41 @@ init =
     )
 
 
-request :
-    StaticHttp.Request
-        { data : Data
-        , compound : Data
-        , totalBtc : Data
-        , perBtcComp : Data
-        , selection : Selection
-        , startString : String
-        , endString : String
-        }
-request =
-    StaticHttp.map2
-        (\nd tbtc ->
-            let
-                cp =
-                    mkcompound nd
 
-                s =
-                    List.head cp
+request1: StaticHttp.Request Data
+request1 =
+    StaticHttp.unoptimizedRequest
+         (Secrets.succeed
+              { url = "https://cbeci.org/api/csv"
+              , method = "GET"
+              , headers = []
+              , body = StaticHttp.emptyBody
+              }
+         )
+         (StaticHttp.expectString
+              (\content -> parseData content (parsePowRecord factor))
+         )
 
-                e =
-                    List.head <| List.drop (List.length cp - 1) cp
+request2: StaticHttp.Request Data
+request2 =
+    StaticHttp.get
+        (Secrets.succeed
+             "https://api.blockchain.info/charts/total-bitcoins?timespan=13years&format=json&cors=true"
+        )
+    (field "values" <| list <| map2 Datum (field "x" <| map (\i -> millisToPosix (1000 * i)) int) (field "y" float))
 
-                dTS =
-                    Maybe.withDefault "YYYY-MM-DD" << Maybe.map datumToTimeString
-            in
-            { data = nd
-            , compound = cp
-            , selection =
-                { start = s
-                , end = e
-                }
-            , startString = dTS s
-            , endString = dTS e
-            , perBtcComp = mkPerBtcComp nd tbtc
-            , totalBtc = tbtc
-            }
-        )
-        (StaticHttp.unoptimizedRequest
-            (Secrets.succeed
-                { url = "https://cbeci.org/api/csv"
-                , method = "GET"
-                , headers = []
-                , body = StaticHttp.emptyBody
-                }
+timeDecoder : Decoder Time.Posix
+timeDecoder =
+    string
+        |> andThen
+            (\str ->
+                case toTime str of
+                    Err deadEnds ->
+                        fail <| Parser.deadEndsToString deadEnds
+
+                    Ok time ->
+                        succeed time
             )
-            (StaticHttp.expectString
-                (\content -> parseData content (parsePowRecord factor))
-            )
-        )
-        (StaticHttp.unoptimizedRequest
-            (Secrets.succeed
-                { url = "https://api.blockchain.info/charts/total-bitcoins?timespan=13years&format=csv&cors=true"
-                , method = "GET"
-                , headers = []
-                , body = StaticHttp.emptyBody
-                }
-            )
-            (StaticHttp.expectString
-                (\content -> parseData content parseBtcRecord)
-            )
-        )
 
 
 
@@ -258,8 +228,8 @@ type Msg
     | LeaveContainer Data
       -- Chart 2
     | Hint (Maybe Datum)
-    | ChangeStart String
-    | ChangeEnd String
+    | ChangeStart Data String
+    | ChangeEnd Data String
     | ChangeBtc String
 
 
@@ -327,7 +297,7 @@ update msg model =
                 |> setHint point
                 |> addCmd Cmd.none
 
-        ChangeStart timeString ->
+        ChangeStart compound timeString ->
             addCmd Cmd.none <|
                 let
                     selection =
@@ -338,13 +308,13 @@ update msg model =
                     , selection =
                         case toTime timeString of
                             Ok ts ->
-                                { selection | start = find (\d -> d.time == ts) model.compound }
+                                { selection | start = find (\d -> d.time == ts) compound }
 
                             Err _ ->
                                 selection
                 }
 
-        ChangeEnd timeString ->
+        ChangeEnd compound timeString ->
             addCmd Cmd.none <|
                 let
                     selection =
@@ -355,7 +325,7 @@ update msg model =
                     , selection =
                         case toTime timeString of
                             Ok ts ->
-                                { selection | end = find (\d -> d.time == ts) model.compound }
+                                { selection | end = find (\d -> d.time == ts) compound }
 
                             Err _ ->
                                 selection
@@ -462,75 +432,61 @@ parseBtcRecord l =
 -- VIEW
 
 
-view : Model -> Element Msg
-view model =
+view : Data-> Data -> Model -> Element Msg
+view data tbtc model =
     let
-        s =
-            model.startString
-
-        e =
-            model.endString
-    in
-    case ( model.selection.start, model.selection.end ) of
-        ( Just startDatum, Just endDatum ) ->
-            let
-                total =
-                    abs (endDatum.amount - startDatum.amount)
-            in
-                column [] (
-            [ chart1 model |> html
-            , chart2 model |> html
-            , text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today.")
-            , text ("\nCalculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate model ++ ".")
-            , text "\nPlease select or enter time interval: "
-            , Input.text []{placeholder=Nothing, text=s, onChange=ChangeStart,label=labelAbove[]<| text"start date" }
-            , Input.text []{placeholder=Nothing, text=e, onChange=ChangeEnd,label=labelAbove[]<| text"end date" }
-
-            --   , chartZoom model startDatum endDatum
-            , text ("\nSelected: " ++ datumToTimeString startDatum ++ " to " ++ datumToTimeString endDatum)
-            , text
-                ("\nTotal Co2 in this time frame: "
-                    ++ (String.fromFloat <| round100 <| total)
-                    ++ " Mt"
-                )
-            ]  
-                ++ (let
-                        perBtcAmount =
-                            co2perBtcIn model.perBtcComp startDatum endDatum
-                    in
-                    [ text
-                        ("\nPer bitcoin when divided by the total amount in existence at every day in the interval: "
-                            ++ (String.fromFloat <| round100 <| perBtcAmount) ++ "t."
-                        )
-                    , Input.text []{ placeholder= Just <| placeholder[] <| text"0.00000001" , text= model.btcS, onChange= ChangeBtc,label=labelAbove[]<| text "\nHow much Bitcoin do you want to offset?"  }]
-                        ++ (case String.toFloat model.btcS of
-                                Nothing ->
-                                    []
-
-                                Just btc ->
+        compound = mkcompound data
+        perBtcComp = mkPerBtcComp data tbtc
+        s = model.startString
+        e = model.endString
+        sD = orLazy model.selection.start (\() -> head compound)
+        eD = orLazy model.selection.end (\() -> last compound)
+    in case (sD,eD) of
+           (Just startDatum, Just endDatum) -> column [] (
+                          [ chart1 data model |> html
+                          , chart2 compound model |> html
+                          , text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today.")
+                          , text ("\nCalculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate compound ++ ".")
+                          , text "\nPlease select or enter time interval: "
+                          , Input.text []{placeholder=Nothing, text=s, onChange=(ChangeStart compound),label=labelAbove[]<| text"start date" }
+                          , Input.text []{placeholder=Nothing, text=e, onChange=(ChangeEnd compound),label=labelAbove[]<| text"end date" }
+                          , text ("\nSelected: " ++ datumToTimeString startDatum ++ " to " ++ datumToTimeString endDatum)
+                          , text
+                                ("\nTotal Co2 in this time frame: "
+                                     ++ (String.fromFloat <| round100 <| abs (endDatum.amount - startDatum.amount))
+                                     ++ " Mt"
+                                )
+                          ]
+                              ++ (let
+                                     perBtcAmount =
+                                         co2perBtcIn perBtcComp startDatum endDatum
+                                in
                                     [ text
-                                        ("\nThis is equivalent to "
-                                            ++ (String.fromFloat <| round100 <| perBtcAmount * btc)
-                                            ++ " t Co2.\nHappy offsetting, and don't forget to tell us about it so we can keep count!"
-                                        )
-                                    ]
-                           )
-                   ) )
+                                          ("\nPer bitcoin when divided by the total amount in existence at every day in the interval: "
+                                               ++ (String.fromFloat <| round100 <| perBtcAmount) ++ "t."
+                                          )
+                                    , Input.text []{ placeholder= Just <| placeholder[] <| text"0.00000001" , text= model.btcS, onChange= ChangeBtc,label=labelAbove[]<| text "\nHow much Bitcoin do you want to offset?"  }]
+                                ++ (case String.toFloat model.btcS of
+                                        Nothing ->
+                                            []
 
-        _ ->
-            column []
-                [ chart1 model |> html
-                , chart2 model |> html
-                , text "Please select a time interval!"
-                ]
+                                        Just btc ->
+                                            [ text
+                                              ("\nThis is equivalent to "
+                                                   ++ (String.fromFloat <| round100 <| perBtcAmount * btc)
+                                                   ++ " t Co2.\nHappy offsetting, and don't forget to tell us about it so we can keep count!"
+                                              )
+                                            ]
+                                   )
+                                 ))
 
-
+           (_,_)  -> column [] [text "no data. this shouldn't happen"]
 
 -- MAIN CHARTS
 
 
-chart1 : Model -> Html.Html Msg
-chart1 model =
+chart1 : Data -> Model -> Html.Html Msg
+chart1 data model =
     LineChart.viewCustom
         (chartConfig
             { y = yAxis1 model.height
@@ -548,11 +504,11 @@ chart1 model =
             , width = model.width
             }
         )
-        [ LineChart.line Colors.pink Dots.circle "CO2" model.data ]
+        [ LineChart.line Colors.pink Dots.circle "CO2" data ]
 
 
-chart2 : Model -> Html.Html Msg
-chart2 model =
+chart2 : Data -> Model -> Html.Html Msg
+chart2 compound model =
     LineChart.viewCustom
         (chartConfig
             { y = yAxis2 model.height
@@ -573,7 +529,7 @@ chart2 model =
             , width = model.width
             }
         )
-        [ LineChart.line Colors.blue Dots.circle "CO2 total" model.compound ]
+        [ LineChart.line Colors.blue Dots.circle "CO2 total" compound ]
 
 
 junkConfig : Model -> Junk.Config Datum msg
@@ -696,22 +652,10 @@ round100 float =
     toFloat (round (float * 100)) / 100
 
 
-findOffsetDate : Model -> String
-findOffsetDate model =
-    let
-        fOD s l =
-            case l of
-                [] ->
-                    s
-
-                x :: xs ->
-                    if x.amount < offset then
-                        fOD (datumToTimeString x) xs
-
-                    else
-                        s
-    in
-    fOD "2009-03-01" model.data
+findOffsetDate : Data -> String
+findOffsetDate compound = Maybe.withDefault "2009-03-01"
+    <| Maybe.map datumToTimeString
+        <| find (\d -> d.amount >= offset) compound
 
 
 co2perBtcIn : Data -> Datum -> Datum -> Float
