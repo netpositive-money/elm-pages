@@ -3,27 +3,24 @@ title: FAQ
 type: page
 ---
 
-# FAQ
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [-](#-)
-- [FAQ](#faq)
-    - [Isn't Bitcoin useless anyway?](#isnt-bitcoin-useless-anyway)
-    - [I have read somewhere that every Bitcoin transaction is ["equivalent to the power consumption of an average U.S. household over 22.86 days."](https://digiconomist.net/bitcoin-energy-consumption). Is that true? Isn't that horrible?](#i-have-read-somewhere-that-every-bitcoin-transaction-is-equivalent-to-the-power-consumption-of-an-average-us-household-over-2286-dayshttpsdigiconomistnetbitcoin-energy-consumption-is-that-true-isnt-that-horrible)
-    - [But I have read that Visa transactions are much more economical!](#but-i-have-read-that-visa-transactions-are-much-more-economical)
-    - [Will Bitcoin boil the oceans?](#will-bitcoin-boil-the-oceans)
-    - [Isn't proof-of-work useless? What is it for?](#isnt-proof-of-work-useless-what-is-it-for)
-    - [Couldn't we just use something else like proof-of-stake or proof-of-anything-else?](#couldnt-we-just-use-something-else-like-proof-of-stake-or-proof-of-anything-else)
-    - [Can't we just change Bitcoin?](#cant-we-just-change-bitcoin)
-    - [Can't we just ban Bitcoin?](#cant-we-just-ban-bitcoin)
-    - [How could Bitcoin be a net positive force for the environment?](#how-could-bitcoin-be-a-net-positive-force-for-the-environment)
-    - [If Bitcoin could be eventually helpful against climate change, why do you want to do anything at all?](#if-bitcoin-could-be-eventually-helpful-against-climate-change-why-do-you-want-to-do-anything-at-all)
-    - [How could we help fight against climate change?](#how-could-we-help-fight-against-climate-change)
-    - [Where can I donate?](#where-can-i-donate)
-    - [How much money are we talking about?](#how-much-money-are-we-talking-about)
-    - [Is that a lot?](#is-that-a-lot)
+- [Isn't Bitcoin useless anyway?](#isnt-bitcoin-useless-anyway)
+- [I have read somewhere that every Bitcoin transaction is "equivalent to the power consumption of an average U.S. household over 22.86 days.". Is that true? Isn't that horrible?](#i-have-read-somewhere-that-every-bitcoin-transaction-is-equivalent-to-the-power-consumption-of-an-average-us-household-over-2286-dayshttpsdigiconomistnetbitcoin-energy-consumption-is-that-true-isnt-that-horrible)
+- [But I have read that Visa transactions are much more economical!](#but-i-have-read-that-visa-transactions-are-much-more-economical)
+- [Will Bitcoin boil the oceans?](#will-bitcoin-boil-the-oceans)
+- [Isn't proof-of-work useless? What is it for?](#isnt-proof-of-work-useless-what-is-it-for)
+- [Couldn't we just use something else like proof-of-stake or proof-of-anything-else?](#couldnt-we-just-use-something-else-like-proof-of-stake-or-proof-of-anything-else)
+- [Can't we just change Bitcoin?](#cant-we-just-change-bitcoin)
+- [Can't we just ban Bitcoin?](#cant-we-just-ban-bitcoin)
+- [How could Bitcoin be a net positive force for the environment?](#how-could-bitcoin-be-a-net-positive-force-for-the-environment)
+- [If Bitcoin could be eventually helpful against climate change, why do you want to do anything at all?](#if-bitcoin-could-be-eventually-helpful-against-climate-change-why-do-you-want-to-do-anything-at-all)
+- [How could we help fight against climate change?](#how-could-we-help-fight-against-climate-change)
+- [Where can I donate?](#where-can-i-donate)
+- [How much money are we talking about?](#how-much-money-are-we-talking-about)
+- [Is that a lot?](#is-that-a-lot)
 
 <!-- markdown-toc end -->
 

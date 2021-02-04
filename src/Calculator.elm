@@ -40,6 +40,7 @@ import List exposing (head)
 import Element.Lazy exposing (lazy2)
 import Element.Lazy exposing (lazy)
 import Html.Lazy
+import Element.Lazy exposing (lazy3)
 
 
 subscriptions : Model -> Sub Msg
@@ -406,12 +407,9 @@ parsePowRecord f l =
 
 
 view : Data-> Data -> Model -> Element Msg
-view d b m = lazy2 (eagerView m) d b
-
-eagerView: Model -> Data -> Data -> Element Msg
-eagerView model data tbtc =
+view data tbtc model =
     let
-        compound = mkcompound data
+        compound = List.map (\d -> {d|amount=d.amount/1000}) <| mkcompound data -- convert from kt to Mt
         perBtcComp = mkPerBtcComp data tbtc
         s = model.startString
         e = model.endString
@@ -429,7 +427,7 @@ eagerView model data tbtc =
                           , lazy text ("\nSelected: " ++ datumToTimeString startDatum ++ " to " ++ datumToTimeString endDatum)
                           , lazy text
                                 ("\nTotal Co2 in this time frame: "
-                                     ++ (String.fromFloat <| round100 <| abs (endDatum.amount - startDatum.amount) / 1000)
+                                     ++ (String.fromFloat <| round100 <| abs (endDatum.amount - startDatum.amount))
                                      ++ " Mt"
                                 )
                           ]
@@ -463,7 +461,7 @@ eagerView model data tbtc =
 
 chart1 : Data -> Model -> Html.Html Msg
 chart1 data model =
-    Html.Lazy.lazy2 LineChart.viewCustom
+    LineChart.viewCustom
         (chartConfig
             { y = yAxis1 model.height
             , area = Area.normal 0.5
@@ -485,7 +483,7 @@ chart1 data model =
 
 chart2 : Data -> Model -> Html.Html Msg
 chart2 compound model =
-    Html.Lazy.lazy2 LineChart.viewCustom
+    LineChart.viewCustom
         (chartConfig
             { y = yAxis2 model.height
             , area = Area.default
