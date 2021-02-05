@@ -161,7 +161,7 @@ pageView data tbtc model siteMetadata page viewForPage =
         Metadata.Calculator metadata ->
             { title = metadata.title
             , body =
-                [ Calculator.view data tbtc model ]
+                Calculator.view data tbtc model
             }
 
         Metadata.Article metadata ->
