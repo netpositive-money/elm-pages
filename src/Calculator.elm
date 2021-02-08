@@ -1,9 +1,12 @@
 module Calculator exposing (Model, Msg, emptySelection, init, request1, request2, subscriptions, update, view, Data)
+import Element exposing (alignRight)
+import Element exposing (alignLeft)
+import Element exposing (fill)
 
 import Browser.Dom exposing (getViewport)
 import Browser.Events exposing (onResize)
 import Csv
-import Element exposing (Element,text,paragraph,column,html)
+import Element exposing (Element,text,paragraph,link,html)
 import Element.Input as Input exposing (placeholder,labelAbove)
 import Html
 import Iso8601 exposing (fromTime, toTime)
@@ -25,7 +28,7 @@ import LineChart.Interpolation as Interpolation
 import LineChart.Junk as Junk
 import LineChart.Legends as Legends
 import LineChart.Line as Line
-import List.Extra exposing (dropWhile, dropWhileRight, find, splitWhen)
+import List.Extra exposing (dropWhile, find)
 import Pages.Secrets as Secrets
 import Pages.StaticHttp as StaticHttp
 import String exposing (left)
@@ -433,17 +436,34 @@ view data tbtc model =
         eD = orLazy model.selection.end (\() -> last compound)
     in case (sD,eD) of
            (Just startDatum, Just endDatum) ->
-                          [ chart1 data model |> html
+                          [ paragraph []
+                                [ text """
+                                        The following graph shows the
+                                        development of Bitcoin mining total CO2
+                                        emissions in megatons per month. It is
+                                        derived from electricity consumption
+                                        data provided by the
+                                        """
+                                 , link []{
+                                            url = "https://cbeci.org/"
+                                          , label=text "Cambridge Centre for Alternative Finance"
+                                      }
+                                 , text " by multiplication with a factor taken from a "
+                                 , link []{
+                                        url="https://www.cell.com/joule/pdf/S2542-4351(19)30255-7.pdf"
+                                        , label = text "paper by Stoll et. al."
+                                      }
+                                 ]
+                          , chart1 data model |> html
+                          , paragraph []
+                              [ text """The second graph shows the total amount of CO2 emitted by Bitcoin mining
+                                      obtained by summing up the above data. You can restrict the calculation to a time interval
+                                      by clicking and dragging or entering the start and end months below.
+                                      """ ]
                           , chart2 compound model |> html
                           , paragraph []
-                          [ lazy text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today. ")
-                          , lazy text ("Calculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate compound ++ ".")
-                          ]
-                          , paragraph []
-                          [ lazy text "Please select or enter time interval: "]
-                          , paragraph []
-                          [ lazy (Input.text []){placeholder=Nothing, text=s, onChange=(ChangeStart compound),label=labelAbove[]<| text"start month" }
-                          , lazy (Input.text []){placeholder=Nothing, text=e, onChange=(ChangeEnd compound),label=labelAbove[]<| text"end month" }
+                          [ lazy (Input.text [alignLeft]){placeholder=Nothing, text=s, onChange=(ChangeStart compound),label=labelAbove[]<| text"start month" }
+                          , lazy (Input.text [alignRight]){placeholder=Nothing, text=e, onChange=(ChangeEnd compound),label=labelAbove[]<| text"end month" }
                           ]
                           , paragraph []
                               [ lazy text ("Selected: " ++ datumToTimeString startDatum ++ " to " ++ datumToTimeString endDatum)]
@@ -479,6 +499,12 @@ view data tbtc model =
                                            , paragraph [] [text "Happy offsetting, and don't forget to tell us about it so we can keep count!"]
                                            ]
                                )
+                             ++
+                          [ paragraph []
+                          [ lazy text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today. ")
+                          , lazy text ("Calculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate compound ++ ".")
+                          ]]
+
 
            (_,_)  -> [text "no data. this shouldn't happen"]
 

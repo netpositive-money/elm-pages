@@ -35,7 +35,7 @@ manifest =
     , categories = [ Pages.Manifest.Category.education ]
     , displayMode = Manifest.Standalone
     , orientation = Manifest.Portrait
-    , description = "elm-pages-starter - A statically typed site generator."
+    , description = "netpositive.money - Bitcoiners contributing to climate change solutions "
     , iarcRatingId = Nothing
     , name = "netpositive.money"
     , themeColor = Just Color.white
@@ -319,4 +319,4 @@ canonicalSiteUrl =
 
 siteTagline : String
 siteTagline =
-    "Starter blog for elm-pages"
+    "Bitcoiners contributing to climate change solutions"
