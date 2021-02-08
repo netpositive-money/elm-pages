@@ -79,9 +79,10 @@ header currentPath title =
                         ]
                 }
             , Element.row [ Element.spacing 15 ]
-                [ highlightableLink currentPath Pages.pages.about.directory "About"
+                [ highlightableLink currentPath Pages.pages.about.directory "about"
                 , highlightableLink currentPath Pages.pages.faq.directory "FAQ"
-                , highlightableLink currentPath Pages.pages.calculator.directory "Calculator"
+                , highlightableLink currentPath Pages.pages.calculator.directory "calculator"
+                , highlightableLink currentPath Pages.pages.sources.directory "sources"
                 , githubRepoLink
                 ]
             ]
