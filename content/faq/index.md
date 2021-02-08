@@ -38,15 +38,19 @@ financial system. It cannot discriminate against people for whatever reason.
 Let's look at some examples:
 
 
-  * Here's a [thread](https://threadreaderapp.com/thread/1340836877595594752.html) by [Alex
-Gladstein](https://twitter.com/gladstein) of the [Human Rights
-Foundation](https://hrf.org/) enumerating humanitarian causes that Bitcoin has
-been useful for. 
+  * Here's a [video](https://twitter.com/gladstein/status/1357757736394444800)
+   by [Alex Gladstein](https://twitter.com/gladstein) of the [Human Rights
+   Foundation](https://hrf.org/) enumerating humanitarian causes that Bitcoin
+   has been useful for. Here's a
+   [thread](https://threadreaderapp.com/thread/1340836877595594752.html), if you
+   prefer text.
+  
   * [As a prominent
 example](https://web.archive.org/web/20201108012753/https://www.forbes.com/sites/rogerhuang/2019/04/26/how-bitcoin-and-wikileaks-saved-each-other/),
 Wikileaks probably wouldn't exist anymore if it wasn't for Bitcoin enabling
 donations for them when the US government pressured other payment providers into
 blocking them.
+  
   * [Here](https://medium.com/open-money-initiative/latin-american-bitcoin-trading-follows-the-heartbeat-of-venezuela-71a28cb86ba0)
     is a fascinating analysis of Bitcoin serving as a vehicle currency in Latin
     America.
@@ -78,10 +82,12 @@ since 2009. How can this be possible?
   * In recent years, long term store of value has become Bitcoin's main use
     case. That is, people use it more for storing their savings than for paying
     for goods and services.
+  
   * Its current usage is thus more comparable to gold, which is also rarely used
     in transactions. I have never seen anybody calculate the energy cost of gold
     mining plus handling divided by the number of physical gold shipments.
     Probably because that's as misleading a number as the equivalent in Bitcoin.
+  
   * Just as with gold, there are ways to make even small transactions quickly
     and cheaply with Bitcoin. Most real-world transactions use one of these
     off-chain methods. Probably the most popular today are custodial services
@@ -91,6 +97,7 @@ since 2009. How can this be possible?
     transactions there are, since there are many "bitcoin banks" and their
     numbers are proprietary, but it's safe to say they dwarf on-chain
     transactions by orders of magnitude.
+  
   * Unlike gold, there are methods of transacting Bitcoin off-chain that require
     less trust in intermediaries, such as the Lightning Network or Blockstream's
     Liquid federation. With a growing demand in transactions, such alternatives
@@ -220,21 +227,16 @@ selection:
 
   * Bitcoin miners are seeking out the cheapest forms of electric energy on the
     planet, pretty much independent of location, and are guaranteeing a minimum
-    price for it.
-    
+    price for it. 
     This can have many interesting consequences: It builds more market demand
     for research and deployment of new energy sources. But without regulatory
     oversight, this might also make fossil energy sources even more profitable.
-        
     So far, we have seen tentative examples of both: Miners have been used to
-    [finance overprovisioning of renewable
-    energy](https://www.forbes.com/sites/christopherhelman/2020/05/21/how-this-billionaire-backed-crypto-startup-gets-paid-to-not-mine-bitcoin/?sh=2a5016a87596)
-    as well as [reactivating formerly unprofitable oil
-    fields](https://www.upstreamdata.ca/post/saving-stranded-gas-distributed-bitcoin-mining-to-the-rescue).
+    [finance overprovisioning of renewable energy](https://www.forbes.com/sites/christopherhelman/2020/05/21/how-this-billionaire-backed-crypto-startup-gets-paid-to-not-mine-bitcoin/?sh=2a5016a87596)
+    as well as [reactivating formerly unprofitable oil fields](https://www.upstreamdata.ca/post/saving-stranded-gas-distributed-bitcoin-mining-to-the-rescue).
     
   * Bitcoin might replace parts of the legacy financial system including gold
     mining.
-    
     Gold mining is an environmentally hazardous process and might become less
     profitable if Bitcoin takes over part of the market premium that gold
     commands now.
@@ -244,7 +246,6 @@ selection:
     always become more valuable over time. Therefore, saving Bitcoin is more
     appealing than saving fiat money, which tends to become less valuable over
     time.
-    
     In order not to depreciate, fiat money always has to be invested. But every
     investment carries both risk and environmental costs. Bitcoin might become
     an alternative that is both less risky (in the long run) and less
