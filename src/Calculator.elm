@@ -37,10 +37,7 @@ import Time exposing (Posix, millisToPosix, posixToMillis, utc)
 import OptimizedDecoder exposing (field,list,map,map2,int,string,float,andThen,fail,succeed)
 import List.Extra exposing (last)
 import List exposing (head)
-import Element.Lazy exposing (lazy2)
 import Element.Lazy exposing (lazy)
-import Html.Lazy
-import Element.Lazy exposing (lazy3)
 import List exposing (filter)
 import Time exposing (toDay)
 import List.Extra exposing (groupWhile)
@@ -48,6 +45,7 @@ import Time exposing (toMonth)
 import List exposing (length)
 import List exposing (filterMap)
 import List exposing (sum)
+import Layout exposing (maxWidth)
 
 
 subscriptions : Model -> Sub Msg
@@ -435,8 +433,8 @@ view data tbtc model =
         eD = orLazy model.selection.end (\() -> last compound)
     in case (sD,eD) of
            (Just startDatum, Just endDatum) ->
-                          [ chart1 data model |> lazy html
-                          , chart2 compound model |> lazy html
+                          [ chart1 data model |> html
+                          , chart2 compound model |> html
                           , paragraph []
                           [ lazy text ("The horizontal line at " ++ String.fromFloat offset ++ " Mt signifies the amount of Co2 that has already been offset today. ")
                           , lazy text ("Calculated from the Genesis block at January 3, 2009, this means we've offset Bitcoin's history approximately until " ++ findOffsetDate compound ++ ".")
@@ -503,7 +501,7 @@ chart1 data model =
             , legends = Legends.default
             , dots = Dots.custom (Dots.full 0)
             , id = "line-chart"
-            , width = min model.width 1000
+            , width = min model.width maxWidth
             }
         )
         [ LineChart.line Colors.pink Dots.circle "CO2" data ]
@@ -528,10 +526,10 @@ chart2 compound model =
                     ]
             , dots = Dots.custom (Dots.full 0)
             , id = "line-chart"
-            , width = min model.width 1000
+            , width = min model.width maxWidth
             }
         )
-        [ LineChart.line Colors.blue Dots.circle "CO2 total" compound ]
+        [ LineChart.line Colors.blue Dots.circle "CO2\ntotal" compound ]
 
 
 junkConfig : Model -> Junk.Config Datum msg
@@ -593,14 +591,7 @@ chartConfig : Config -> LineChart.Config Datum Msg
 chartConfig { y, range, junk, events, legends, dots, id, area, width } =
     { y = y
     , x = xAxis range width
-    , container = Container.default id
-        -- Container.custom
-        --     { attributesHtml = [ Html.Attributes.style "font-family" "monospace" ]
-        --     , attributesSvg = []
-        --     , size = Container.static
-        --     , margin = Container.Margin 30 200 60 50
-        --     , id = id
-        --     }
+    , container = Container.responsive id
     , interpolation = Interpolation.monotone
     , intersection = Intersection.default
     , legends = legends
@@ -615,7 +606,7 @@ chartConfig { y, range, junk, events, legends, dots, id, area, width } =
 
 yAxis1 : Int -> Axis.Config Datum Msg
 yAxis1 h =
-    Axis.full (h // 2) "Mt/month" .amount
+    Axis.full (h // 2) "Mt/\nmonth" .amount
 
 
 yAxis2 : Int -> Axis.Config Datum Msg

@@ -1,4 +1,4 @@
-module Layout exposing (view)
+module Layout exposing (view, maxWidth)
 
 import DocumentSvg
 import Element exposing (Element)
@@ -14,6 +14,7 @@ import Pages.ImagePath as ImagePath
 import Pages.PagePath as PagePath exposing (PagePath)
 import Palette
 
+maxWidth = 1000
 
 view :
     { title : String, body : List (Element msg) }
@@ -32,7 +33,7 @@ view document page =
                 [ Element.padding 30
                 , Element.spacing 40
                 , Element.Region.mainContent
-                , Element.width (Element.fill |> Element.maximum 800)
+                , Element.width (Element.fill |> Element.maximum maxWidth)
                 , Element.centerX
                 ]
                 document.body
@@ -40,7 +41,7 @@ view document page =
             |> Element.layout
                 [ Element.width Element.fill
                 , Font.size 20
-                , Font.family [ Font.typeface "Roboto" ]
+                -- , Font.family [ Font.typeface "Roboto" ]
                 , Font.color (Element.rgba255 0 0 0 0.8)
                 ]
     }
@@ -78,8 +79,8 @@ header currentPath title =
                         ]
                 }
             , Element.row [ Element.spacing 15 ]
-                [ highlightableLink currentPath Pages.pages.faq.directory "FAQ"
-                , highlightableLink currentPath Pages.pages.blog.directory "Blog"
+                [ highlightableLink currentPath Pages.pages.about.directory "About"
+                , highlightableLink currentPath Pages.pages.faq.directory "FAQ"
                 , highlightableLink currentPath Pages.pages.calculator.directory "Calculator"
                 , githubRepoLink
                 ]
