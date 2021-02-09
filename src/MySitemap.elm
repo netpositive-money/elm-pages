@@ -27,9 +27,6 @@ build config siteMetadata =
                 |> List.filter
                     (\page ->
                         case page.frontmatter of
-                            Article articleData ->
-                                not articleData.draft
-
                             _ ->
                                 True
                     )

@@ -1,4 +1,4 @@
-module Metadata exposing (ArticleMetadata, Metadata(..), PageMetadata, decoder)
+module Metadata exposing (Metadata(..), PageMetadata, decoder)
 
 import Data.Author
 import Date exposing (Date)
@@ -10,20 +10,8 @@ import Pages.ImagePath as ImagePath exposing (ImagePath)
 
 type Metadata
     = Page PageMetadata
-    | Article ArticleMetadata
-    | Author Data.Author.Author
-    | BlogIndex
     | Calculator PageMetadata
-
-
-type alias ArticleMetadata =
-    { title : String
-    , description : String
-    , published : Date
-    , author : Data.Author.Author
-    , image : ImagePath Pages.PathKey
-    , draft : Bool
-    }
+    | TocPage PageMetadata
 
 
 type alias PageMetadata =
@@ -42,42 +30,9 @@ decoder =
                     "calculator" ->
                         Decode.field "title" Decode.string
                             |> Decode.map (\title -> Calculator { title = title })
-
-                    "blog-index" ->
-                        Decode.succeed BlogIndex
-
-                    "author" ->
-                        Decode.map3 Data.Author.Author
-                            (Decode.field "name" Decode.string)
-                            (Decode.field "avatar" imageDecoder)
-                            (Decode.field "bio" Decode.string)
-                            |> Decode.map Author
-
-                    "blog" ->
-                        Decode.map6 ArticleMetadata
-                            (Decode.field "title" Decode.string)
-                            (Decode.field "description" Decode.string)
-                            (Decode.field "published"
-                                (Decode.string
-                                    |> Decode.andThen
-                                        (\isoString ->
-                                            case Date.fromIsoString isoString of
-                                                Ok date ->
-                                                    Decode.succeed date
-
-                                                Err error ->
-                                                    Decode.fail error
-                                        )
-                                )
-                            )
-                            (Decode.field "author" Data.Author.decoder)
-                            (Decode.field "image" imageDecoder)
-                            (Decode.field "draft" Decode.bool
-                                |> Decode.maybe
-                                |> Decode.map (Maybe.withDefault False)
-                            )
-                            |> Decode.map Article
-
+                    "tocpage" ->
+                        Decode.field "title" Decode.string
+                            |> Decode.map (\title -> TocPage { title = title })
                     _ ->
                         Decode.fail ("Unexpected page type " ++ pageType)
             )

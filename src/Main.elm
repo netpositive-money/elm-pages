@@ -1,31 +1,31 @@
 module Main exposing (main)
 
 import Color
-import Data.Author as Author
-import Date
 import Element exposing (Element)
 import Element.Font as Font
 import Feed
 import Head
 import Head.Seo as Seo
 import Html exposing (Html)
-import Index
 import Json.Decode
 import Layout
 import Markdown.Parser
 import Markdown.Renderer
 import Metadata exposing (Metadata)
 import MySitemap
-import Page.Article
 import Pages exposing (images, pages)
 import Pages.Manifest as Manifest
 import Pages.Manifest.Category
 import Pages.PagePath exposing (PagePath)
 import Pages.Platform
 import Pages.StaticHttp as StaticHttp
-import Palette
-import Calculator exposing (Model,Msg,init,update,request1,request2,emptySelection, Data)
-
+import Calculator exposing (Model,Msg,request1,request2,Data)
+import Markdown.Block as Block exposing (Block, Inline, HeadingLevel)
+import Markdown.Block exposing (extractInlineText)
+import Markdown.Block exposing (headingLevelToInt)
+import Html.Attributes exposing (id)
+import Markdown.Renderer exposing (defaultHtmlRenderer)
+import Pages.PagePath exposing (toString)
 
 
 
@@ -47,7 +47,7 @@ manifest =
 
 
 type alias Rendered =
-    Element Msg
+    (TableOfContents, Element Msg)
 
 
 
@@ -94,22 +94,22 @@ generateFiles siteMetadata =
         ]
 
 
-markdownDocument : { extension : String, metadata : Json.Decode.Decoder Metadata, body : String -> Result error (Element msg) }
+markdownDocument : { extension : String, metadata : Json.Decode.Decoder Metadata, body : String -> Result error (TableOfContents, (Element msg)) }
 markdownDocument =
     { extension = "md"
     , metadata = Metadata.decoder
     , body =
         \markdownBody ->
             -- Html.div [] [ Markdown.toHtml [] markdownBody ]
-            Markdown.Parser.parse markdownBody
-                |> Result.withDefault []
-                |> Markdown.Renderer.render Markdown.Renderer.defaultHtmlRenderer
+            let b = Markdown.Parser.parse markdownBody
+                    |> Result.withDefault []
+            in b |> Markdown.Renderer.render headingRenderer
                 |> Result.withDefault [ Html.text "" ]
                 |> Html.div []
                 |> Element.html
                 |> List.singleton
                 |> Element.paragraph [ Element.width Element.fill ]
-                |> Ok
+                |> \c -> Ok (buildToc b,c)
     }
 
 
@@ -149,13 +149,9 @@ pageView data tbtc model siteMetadata page viewForPage =
     case page.frontmatter of
         Metadata.Page metadata ->
             { title = metadata.title
-            , body =
-                [ viewForPage
-                ]
-
-            --        |> Element.textColumn
-            --            [ Element.width Element.fill
-            --            ]
+            , body = case viewForPage of
+                         (t,b) ->
+                             [b]
             }
 
         Metadata.Calculator metadata ->
@@ -164,24 +160,14 @@ pageView data tbtc model siteMetadata page viewForPage =
                 Calculator.view data tbtc model
             }
 
-        Metadata.Article metadata ->
-            Page.Article.view metadata viewForPage
+        Metadata.TocPage metadata ->
+            { title = metadata.title
+            , body = case viewForPage of
+                         (t,b) ->
+                             [tocView t <| toString page.path, b]
 
-        Metadata.Author author ->
-            { title = author.name
-            , body =
-                [ Palette.blogHeading author.name
-                , Author.view [] author
-                , Element.paragraph [ Element.centerX, Font.center ] [ viewForPage ]
-                ]
             }
 
-        Metadata.BlogIndex ->
-            { title = "elm-pages blog"
-            , body =
-                [ Element.column [ Element.padding 20, Element.centerX ] [ Index.view siteMetadata ]
-                ]
-            }
 
 
 commonHeadTags : List (Head.Tag Pages.PathKey)
@@ -221,6 +207,22 @@ head metadata =
                         }
                         |> Seo.website
 
+                Metadata.TocPage meta ->
+                    Seo.summaryLarge
+                        { canonicalUrlOverride = Nothing
+                        , siteName = "netpositive.money"
+                        , image =
+                            { url = images.iconPng
+                            , alt = "elm-pages logo"
+                            , dimensions = Nothing
+                            , mimeType = Nothing
+                            }
+                        , description = siteTagline
+                        , locale = Nothing
+                        , title = meta.title
+                        }
+                        |> Seo.website
+
                 Metadata.Calculator meta ->
                     Seo.summaryLarge
                         { canonicalUrlOverride = Nothing
@@ -237,82 +239,10 @@ head metadata =
                         }
                         |> Seo.website
 
-                Metadata.Article meta ->
-                    Seo.summaryLarge
-                        { canonicalUrlOverride = Nothing
-                        , siteName = "elm-pages starter"
-                        , image =
-                            { url = meta.image
-                            , alt = meta.description
-                            , dimensions = Nothing
-                            , mimeType = Nothing
-                            }
-                        , description = meta.description
-                        , locale = Nothing
-                        , title = meta.title
-                        }
-                        |> Seo.article
-                            { tags = []
-                            , section = Nothing
-                            , publishedTime = Just (Date.toIsoString meta.published)
-                            , modifiedTime = Nothing
-                            , expirationTime = Nothing
-                            }
-
-                Metadata.Author meta ->
-                    let
-                        ( firstName, lastName ) =
-                            case meta.name |> String.split " " of
-                                [ first, last ] ->
-                                    ( first, last )
-
-                                [ first, middle, last ] ->
-                                    ( first ++ " " ++ middle, last )
-
-                                [] ->
-                                    ( "", "" )
-
-                                _ ->
-                                    ( meta.name, "" )
-                    in
-                    Seo.summary
-                        { canonicalUrlOverride = Nothing
-                        , siteName = "netpositive.money"
-                        , image =
-                            { url = meta.avatar
-                            , alt = meta.name ++ "'s elm-pages articles."
-                            , dimensions = Nothing
-                            , mimeType = Nothing
-                            }
-                        , description = meta.bio
-                        , locale = Nothing
-                        , title = meta.name ++ "'s elm-pages articles."
-                        }
-                        |> Seo.profile
-                            { firstName = firstName
-                            , lastName = lastName
-                            , username = Nothing
-                            }
-
-                Metadata.BlogIndex ->
-                    Seo.summaryLarge
-                        { canonicalUrlOverride = Nothing
-                        , siteName = "elm-pages"
-                        , image =
-                            { url = images.iconPng
-                            , alt = "elm-pages logo"
-                            , dimensions = Nothing
-                            , mimeType = Nothing
-                            }
-                        , description = siteTagline
-                        , locale = Nothing
-                        , title = "elm-pages blog"
-                        }
-                        |> Seo.website
-           )
-
+                )
 
 canonicalSiteUrl : String
+
 canonicalSiteUrl =
     "https://netpositive.money"
 
@@ -320,3 +250,90 @@ canonicalSiteUrl =
 siteTagline : String
 siteTagline =
     "Bitcoiners contributing to climate change solutions"
+
+
+type alias TableOfContents =
+    List { anchorId : String, name : String, level : Int }
+
+tocView : TableOfContents -> String -> Element msg
+tocView toc url =
+    Element.column [ Element.alignTop, Element.spacing 20 ]
+        [ Element.el [ Font.bold, Font.size 22 ] (Element.text "Table of Contents")
+        , Element.column [ Element.spacing 10 ]
+            (toc
+                |> List.map
+                    (\headingBlock ->
+                        Element.paragraph [] [Element.link [ Font.color (Element.rgb255 100 100 100) ]
+                            { url = url++ "#" ++ headingBlock.anchorId
+                            , label = Element.text headingBlock.name
+                            }]
+                    )
+            )
+        ]
+
+
+buildToc : List Block -> TableOfContents
+buildToc blocks =
+    let
+        headings =
+            gatherHeadings blocks
+    in
+    headings
+        |> List.map Tuple.second
+        |> List.map
+            (\styledList ->
+                { anchorId = styledToString styledList |> rawTextToId
+                , name = styledToString styledList
+                , level = 1
+                }
+            )
+
+headingRenderer = {
+    defaultHtmlRenderer |
+        heading =
+            \{ level, children, rawText } ->
+            (case level of
+                Block.H1 ->
+                    Html.h1
+
+                Block.H2 ->
+
+                    Html.h2
+
+                Block.H3 ->
+                    Html.h3
+
+                Block.H4 ->
+                    Html.h4
+
+                Block.H5 ->
+                    Html.h5
+
+                Block.H6 ->
+                    Html.h6)
+        [id <| rawTextToId rawText] children
+                    }
+
+styledToString : List Inline -> String
+styledToString list =
+    extractInlineText list
+
+
+
+gatherHeadings : List Block -> List ( Int, List Inline )
+gatherHeadings blocks =
+    List.filterMap
+        (\block ->
+            case block of
+                Markdown.Block.Heading level content ->
+                    Just ( headingLevelToInt level, content )
+
+                _ ->
+                    Nothing
+        )
+        blocks
+
+rawTextToId rawText =
+    rawText
+        |> String.toLower
+        |> String.replace " " ""
