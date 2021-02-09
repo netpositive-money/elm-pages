@@ -487,7 +487,7 @@ view data tbtc model =
                                                ++ (String.fromFloat <| round100 <| perBtcAmount) ++ "t."
                                           )]
                                     , paragraph []
-                                        [ Input.text []{ placeholder= Just <| placeholder[] <| text"0.00000001" , text= model.btcS, onChange= ChangeBtc,label=labelAbove[]<| text "\nHow many bitcoin do you want to offset?"  }]
+                                        [ Input.text []{ placeholder= Just <| placeholder[] <| text"0.00000001" , text= model.btcS, onChange= ChangeBtc,label=labelAbove[]<| text "How many bitcoin do you want to offset?"  }]
                                     ]
                                 ++ case String.toFloat model.btcS of
                                        Nothing ->
@@ -557,7 +557,7 @@ chart2 compound model =
             , width = min model.width maxWidth
             }
         )
-        [ LineChart.line Colors.blue Dots.circle "CO2\ntotal" compound ]
+        [ LineChart.line Colors.blue Dots.circle "CO2" compound ]
 
 
 junkConfig : Model -> Junk.Config Datum msg
@@ -634,7 +634,7 @@ chartConfig { y, range, junk, events, legends, dots, id, area, width } =
 
 yAxis1 : Int -> Axis.Config Datum Msg
 yAxis1 h =
-    Axis.full (h // 2) "Mt/\nmonth" .amount
+    Axis.full (h // 2) "Mt/month" .amount
 
 
 yAxis2 : Int -> Axis.Config Datum Msg
