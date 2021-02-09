@@ -49,6 +49,8 @@ import List exposing (length)
 import List exposing (filterMap)
 import List exposing (sum)
 import Layout exposing (maxWidth)
+import Element exposing (el)
+import Element exposing (width)
 
 
 subscriptions : Model -> Sub Msg
@@ -454,13 +456,13 @@ view data tbtc model =
                                         , label = text "paper by Stoll et. al."
                                       }
                                  ]
-                          , chart1 data model |> html
+                          , paragraph[][chart1 data model |> html]
                           , paragraph []
                               [ text """The second graph shows the total amount of CO2 emitted by Bitcoin mining
                                       obtained by summing up the above data. You can restrict the calculation to a time interval
                                       by clicking and dragging or entering the start and end months below.
                                       """ ]
-                          , chart2 compound model |> html
+                          , paragraph [] [html <| chart2 compound model]
                           , paragraph []
                           [ lazy (Input.text [alignLeft]){placeholder=Nothing, text=s, onChange=(ChangeStart compound),label=labelAbove[]<| text"start month" }
                           , lazy (Input.text [alignRight]){placeholder=Nothing, text=e, onChange=(ChangeEnd compound),label=labelAbove[]<| text"end month" }
