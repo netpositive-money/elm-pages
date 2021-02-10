@@ -1,4 +1,4 @@
-module Calculator exposing (Model, Msg, emptySelection, init, request1, request2, subscriptions, update, view, Data)
+module Calculator exposing (emptySelection, init, request1, request2, subscriptions, update, view)
 import Element exposing (alignRight)
 import Element exposing (alignLeft)
 import Element exposing (fill)
@@ -49,17 +49,14 @@ import List exposing (length)
 import List exposing (filterMap)
 import List exposing (sum)
 import Layout exposing (maxWidth)
-import Element exposing (el)
 import Element exposing (width)
+import Shared exposing (..)
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch [ onResize SetScreenSize ]
 
-
-
--- MODEL
 
 
 factor : Float
@@ -81,39 +78,6 @@ offset =
 --
 
 
-type alias Model =
-    { hovered : Maybe Datum
-    , selection : Selection
-    , dragging : Bool
-    , hinted : Maybe Datum
-    , startString : String
-    , endString : String
-    , btcS : String
-    , width : Int
-    , height : Int
-    }
-
-
-type alias Selection =
-    { start : Maybe Datum
-    , end : Maybe Datum
-    }
-
-
-
----beware, start might be later than end!
-
-
-type alias Data =
-    List Datum
-
-
-type alias Datum =
-    { time : Posix
-    , amount : Float
-    }
-
-
 
 -- INIT
 
@@ -129,6 +93,7 @@ init =
       , btcS = ""
       , width = 1280
       , height = 720
+      , showMobileMenu=False
       }
     , Task.perform
         (\vp ->
@@ -228,24 +193,18 @@ setSelectionString start end model =
 -- UPDATE
 
 
-type Msg
-    = SetScreenSize Int Int
-      -- Chart 1
-    | Hold Data
-    | Move Data
-    | Drop Data
-    | LeaveChart Data
-    | LeaveContainer Data
-      -- Chart 2
-    | Hint (Maybe Datum)
-    | ChangeStart Data String
-    | ChangeEnd Data String
-    | ChangeBtc String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        OnPageChange page ->
+            ( { model | showMobileMenu = False }, Cmd.none )
+
+        ToggleMobileMenu ->
+            {model | showMobileMenu = not model.showMobileMenu}
+                |> addCmd Cmd.none
+
         SetScreenSize w h ->
             { model
                 | height = h

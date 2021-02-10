@@ -3,6 +3,10 @@ title: sources
 type: page
 ---
 
+## What People Get Wrong About Bitcoin's Climate Footpring
+
+Nic Carter explains much of what I've written on in the [FAQ](faq) concisely in this video:
+<https://www.bloomberg.com/news/videos/2021-02-09/what-people-get-wrong-about-bitcoin-s-climate-footprint-nic-carter-video>
 
 <!---<a id="org2a9265c"></a>--->
 

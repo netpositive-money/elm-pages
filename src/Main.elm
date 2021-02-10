@@ -3,7 +3,6 @@ module Main exposing (main)
 import Color
 import Element exposing (Element)
 import Element.Font as Font
-import Feed
 import Head
 import Head.Seo as Seo
 import Html exposing (Html)
@@ -19,13 +18,15 @@ import Pages.Manifest.Category
 import Pages.PagePath exposing (PagePath)
 import Pages.Platform
 import Pages.StaticHttp as StaticHttp
-import Calculator exposing (Model,Msg,request1,request2,Data)
+import Shared exposing (Model,Msg,Data)
+import Calculator exposing (request1,request2)
 import Markdown.Block as Block exposing (Block, Inline, HeadingLevel)
 import Markdown.Block exposing (extractInlineText)
 import Markdown.Block exposing (headingLevelToInt)
 import Html.Attributes exposing (id)
 import Markdown.Renderer exposing (defaultHtmlRenderer)
 import Pages.PagePath exposing (toString)
+import Shared exposing (Msg(..))
 
 
 
@@ -55,7 +56,7 @@ type alias Rendered =
 -- main : Platform.Program Pages.Platform.Flags (Pages.Platform.Model Model Msg Metadata Rendered) (Pages.Platform.Msg Msg Metadata Rendered)
 
 
-main : Pages.Platform.Program Calculator.Model Calculator.Msg Metadata Rendered Pages.PathKey
+main : Pages.Platform.Program Model Msg Metadata Rendered Pages.PathKey
 main =
     Pages.Platform.init
         { init = \_ -> Calculator.init
@@ -65,7 +66,7 @@ main =
         , documents = [ markdownDocument ]
         , manifest = manifest
         , canonicalSiteUrl = canonicalSiteUrl
-        , onPageChange = Nothing
+        , onPageChange = Just OnPageChange
         , internals = Pages.internals
         }
         |> Pages.Platform.withFileGenerator generateFiles
@@ -89,12 +90,11 @@ generateFiles :
             )
 generateFiles siteMetadata =
     StaticHttp.succeed
-        [ Feed.fileToGenerate { siteTagline = siteTagline, siteUrl = canonicalSiteUrl } siteMetadata |> Ok
-        , MySitemap.build { siteUrl = canonicalSiteUrl } siteMetadata |> Ok
+        [ MySitemap.build { siteUrl = canonicalSiteUrl } siteMetadata |> Ok
         ]
 
 
-markdownDocument : { extension : String, metadata : Json.Decode.Decoder Metadata, body : String -> Result error (TableOfContents, (Element msg)) }
+markdownDocument : { extension : String, metadata : Json.Decode.Decoder Metadata, body : String -> Result error (TableOfContents, (Element Msg)) }
 markdownDocument =
     { extension = "md"
     , metadata = Metadata.decoder
@@ -131,7 +131,7 @@ view siteMetadata page =
     StaticHttp.map2 (\data tbtc ->
         { view =
             \model viewForPage ->
-              Layout.view (pageView data tbtc model siteMetadata page viewForPage) page
+              Layout.view model (pageView data tbtc model siteMetadata page viewForPage) page
         , head = head page.frontmatter
         } )
         request1
@@ -139,7 +139,7 @@ view siteMetadata page =
 
 
 pageView :
-    Calculator.Data -> Calculator.Data
+    Data -> Data
     -> Model
     -> List ( PagePath Pages.PathKey, Metadata )
     -> { path : PagePath Pages.PathKey, frontmatter : Metadata }
@@ -255,7 +255,7 @@ siteTagline =
 type alias TableOfContents =
     List { anchorId : String, name : String, level : Int }
 
-tocView : TableOfContents -> String -> Element msg
+tocView : TableOfContents -> String -> Element Msg
 tocView toc url =
     Element.column [ Element.alignTop, Element.spacing 20 ]
         [ Element.el [ Font.bold, Font.size 22 ] (Element.text "Table of Contents")
