@@ -64,67 +64,8 @@ view model document page =
                 -- , Font.family [ Font.typeface "Roboto" ]
                 , Font.color (Element.rgba255 0 0 0 0.8)
                 ]
-
-        -- Element.column
-        --     [ Element.width Element.fill ]
-        --     [ header page.path document.title
-        --     , Element.column
-        --         [ Element.padding 30
-        --         , Element.spacing 40
-        --         , Element.Region.mainContent
-        --         , Element.width (Element.fill |> Element.maximum maxWidth)
-        --         , Element.centerX
-        --         ]
-        --         document.body
-        --     ]
-        --     |> Element.layout
-        --         [ Element.width Element.fill
-        --         , Font.size 20
-        --         -- , Font.family [ Font.typeface "Roboto" ]
-        --         , Font.color (Element.rgba255 0 0 0 0.8)
-        --         ]
     }
-
-
-
-
-
--- header : PagePath Pages.PathKey -> String -> Element msg
--- header currentPath title =
---     Element.column [ Element.width Element.fill ]
---         [ Element.el
---             [ Element.height (Element.px 4)
---             , Element.width Element.fill
---             , Element.Background.gradient
---                 { angle = 0.2
---                 , steps =
---                     [ Element.rgb255 0 242 96
---                     , Element.rgb255 5 117 230
---                     ]
---                 }
---             ]
---             Element.none
---         , Element.row
---             [ Element.paddingXY 25 4
---             , Element.spaceEvenly
---             , Element.width Element.fill
---             , Element.Region.navigation
---             , Element.Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
---             , Element.Border.color (Element.rgba255 40 80 40 0.4)
---             ]
---             [ Element.link []
---                 { url = "/"
---                 , label =
---                     Element.row [ Font.size 30, Element.spacing 16 ]
---                         [ DocumentSvg.view
---                         , Element.text title
---                         ]
---                 }
---             , Element.row [ Element.spacing 15 ]
---                 <| navbarLinks currentPath
---             ]
---         ]
-
+        
 
 header : PagePath Pages.PathKey -> String ->  Element Msg
 header currentPath title =
@@ -170,8 +111,8 @@ logoLink =
                 , Element.spacing 16
                 , Element.htmlAttribute (Attr.class "navbar-title")
                 ]
-                [ DocumentSvg.view
-                , Element.text "elm-pages"
+                [ -- DocumentSvg.view
+                Element.text "netpositive.money"
                 ]
         }
 
@@ -234,7 +175,7 @@ logoLinkMobile =
                 , Element.spacing 16
                 , Element.htmlAttribute (Attr.class "navbar-title")
                 ]
-                [ Element.text "elm-pages"
+                [ Element.text "netpositive.money"
                 ]
         }
 
