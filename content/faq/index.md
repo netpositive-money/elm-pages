@@ -102,10 +102,93 @@ If you have a little time, Nic Carter has [explained it much better than me](htt
 
 ## Will Bitcoin boil the oceans?
 
-tl;dr: No. It does use a lot of energy and this also leads to a lot of Co2
+tl;dr: No. It does use a lot of energy and this also leads to a lot of CO2
 emissions. See the current best estimates on how much
 [here](https://netpositive.money/calculator). It's hard to predict how this will
 develop in the future, but it will not grow exponentially forever.
+
+It is difficult to make predictions, especially about the future. This is why
+even within the Bitcoin community, you will find contradicting (but dead-sure)
+prognoses for future hash rate, mining cost, energy use, and CO2 emissions. But
+in the first place, it is important to clearly distinguish those four values.
+
+Bitcoin's hash rate has grown in leaps and bounds from some megahashes in the
+beginning to triple digit exahashes (that is, xxx**10^18 hashes per second, or
+xxx million million megahashes) today. That means it has increased several
+trillion fold in 12 years. If electricity demand had scaled up comparably,
+mining would use more energy than is produced in the world by now. But luckily,
+hash rate is not what is important to Bitcoin's economics at all.
+
+The metric that ties everything together is the cost of mining. If miners behave
+economically (which they mostly appear to do) it should converge toward the
+block reward, which in turn is composed of the block subsidy ("new bitcoins
+being mined") and the mining fees ("what people pay to get their transactions
+into a block"). The block subsidy is halving every 210.000 blocks (about 4
+years), which has happened thrice already, so it has gone down from 50 btc to
+6.25 bitcoin today and is further exponentially declining --- when calculated in
+btc. The mining fees have substantially picked up over the last few years and
+are now at about 15% of the block reward. It is important for Bitcoin's future
+security (when the subsidy has declined further) that these remain substantial.
+How substantial? Nobody knows. The hope is that the market will find out.
+
+Of course, when denominated in, say, USD, the cost of mining has not fallen but
+risen exponentially in the past 12 years, because of price of bitcoin has risen
+even more. But it is important to observe that 
+
+* mining cost is rising exponentially lower than hash rate (because of
+  technology improvements)
+
+* mining cost is rising exponentially lower than bitcoin price (because of halvenings)
+
+* mining cost in BTC is relatively easy to predict in the near future (as long
+  as it's dominated by subsidies)
+
+* mining cost in USD is mostly dependent on the price of bitcoin, has been
+  growing exponentially so far, but might top out when the bitcoin price stops
+  growing by more than 100% every four years
+
+Now for the third metric. Energy use depends on many factors. Mining cost is
+probably the most obvious one. Availability, longevity and cost of mining
+equipment have to be taken into account as well, and they are also changing in
+interesting ways. However, the most interesting aspect in this is probably the
+price of the electricity used. As Bitcoin mining has become a more mature,
+miners have become both industrial size energy users and mobile enough to seek
+out the cheapest energy on earth. This has fascinating consequences:
+
+* energy use might have grown more than mining cost, due to miners gaining
+  access to cheaper energy 
+* the energy that miners use today is mostly very cheap, because it is mostly
+  surplus
+* energy use is inversely correlated with energy price. So if regulators succeed
+  in raising the price of dirty energy, miners will use less of it.
+  
+Which brings us to the final and most decisive metric, CO2 emissions. It is the
+most difficult to measure and predict, because it depends critically not only on
+the amount of energy used but on the kind of energy used. Unfortunately, many
+mining operations are not very public. This leads to the existing research (see
+[our sources](sources)) being imprecise in deducing CO2 emissions from energy
+use. Although the estimates of the percentage of renewable energy used in mining
+vary, it is relatively safe to say it exceeds that of most countries by far.
+Since the studies mostly get from energy use to CO2 emissions by estimating the
+amount of mining in a region and then multiplying by the average carbon
+footprint of energy production in that region they are probably overestimating.
+In fact, there are two key questions here:
+
+* how much Co2 is emitted by the energy production?
+* what would have happened otherwise, if the Bitcoin mining didn't happen?
+
+There is substantial evidence that for both of these questions, the trend is
+positive. States will tolerate miners abusing fossil energy subsidies only so
+long. As pointed out [in another
+question](faq/#howcouldbitcoinbeanetpositiveforcefortheenvironment?), energy
+providers are using Bitcoin mining in order to overprovision renewable energy.
+Mining is used in place of flaring or even just venting surplus natural gas.
+However, there are also reports of mining making stranded oil or gas fields
+profitable again. It remains important to look closely at all of these examples
+and see if they are really net positive, but one could be forgiven for being
+optimistic.
+
+
 
 ## Isn't proof-of-work useless? What is it for?
 
@@ -189,9 +272,10 @@ Banning it would require a global totalitarian regime. Do you really want that?
 
 ## How could Bitcoin be a net positive force for the environment? 
 
-tl;dr: It could help finance renewable energy developments, replace legacy
-environmental hazards such as gold mining, incentivize people to save instead of
-spend, and maybe even be the foundation of a more sustainable economic system.
+tl;dr: It could help finance renewable energy developments, remove subsidies for
+fossil energy, replace legacy environmental hazards such as gold mining,
+incentivize people to save instead of spend, and maybe even be the foundation of
+a more sustainable economic system.
 
 Many Bitcoiners have written passionate pieces full of conviction about this
 topic. Here's a [twitter thread full of
@@ -214,10 +298,14 @@ selection:
     [finance overprovisioning of renewable energy](https://www.forbes.com/sites/christopherhelman/2020/05/21/how-this-billionaire-backed-crypto-startup-gets-paid-to-not-mine-bitcoin/?sh=2a5016a87596)
     as well as [reactivating formerly unprofitable oil fields](https://www.upstreamdata.ca/post/saving-stranded-gas-distributed-bitcoin-mining-to-the-rescue).
     
+  * Since Bitcoin miners are buying cheap energy wherever it occurs, they may
+   hasten the demise of energy subsidies by simply making them economically
+   unbearable. Or they might just be outlawed. Either way, no more fossil energy
+   based mining.
+    
   * Bitcoin might replace parts of the legacy financial system including gold
-    mining.
-    Gold mining is an environmentally hazardous process and might become less
-    profitable if Bitcoin takes over part of the market premium that gold
+    mining. Gold mining is an environmentally hazardous process and might become
+    less profitable if Bitcoin takes over part of the market premium that gold
     commands now.
     
   * Bitcoin is implementing the idea of sound money. That is, the Bitcoin supply
@@ -233,7 +321,7 @@ selection:
     time might be, say, less carbon intensive, than having the same amount of
     buying power being spent potentially multiple times in the economy.
         
-  * From it's inception, Bitcoin has been a counter movement to the legacy
+  * From its inception, Bitcoin has been a counter movement to the legacy
     banking system built on credit expansion. Many people see this system of
     money production as a key driver for inequality, unlimited economic growth
     and environmental hazards. Bitcoin might be the foundation of a different
@@ -261,12 +349,12 @@ tell the world that we are sure that Bitcoin is a net positive money.
 
 We do not want to take your money. In the spirit of Bitcoin, this is a voluntary
 and decentralized effort. So ideally, you select the cause and the amount you
-want to give, estimate the amount of Co2 offset, and report that to us, as
+want to give, estimate the amount of CO2 offset, and report that to us, as
 anonymously or publicly as you want. In order to make that easier for you, we are
 curating a list of charities that we believe are helpful and that work with us to
 automatically report the numbers so we can measure our impact as bitcoiners. And
 we have made the [calculator page](https://netpositive.money/calculator) to give
-you an idea of how much Co2 you might want to offset.
+you an idea of how much CO2 you might want to offset.
 
 In general, we'd recommend indexing risk by donating (as a community) to a wide
 array of initiatives with different approaches. You can just select those that
@@ -278,14 +366,14 @@ recommendation list.
 ## How much money are we talking about?
 
 Looking at the [calculator page](https://netpositive.money/calculator), the
-current estimate of total Co2 emitted by bitcoin mining in its lifetime is close
+current estimate of total CO2 emitted by bitcoin mining in its lifetime is close
 to 100 Mt. Classical offsetting measures or carbon credits would price this at
-about \$20 per ton of Co2 or \$2 billion. Which is less than 0.4% of the current
+about \$20 per ton of CO2 or \$2 billion. Which is less than 0.4% of the current
 value of all bitcoins in existence, or about $120 per Bitcoin.
 
 However, as you can see on our list of charities, there are initiatives that
 promise a much higher impact per dollar invested, to the tune of far less than
-\$1 per ton of Co2. These tend to be a little more speculative in nature, in
+\$1 per ton of CO2. These tend to be a little more speculative in nature, in
 that there is more variance in the expected amount offset, which should be OK if
 we don't put all our eggs in one basket.
 
