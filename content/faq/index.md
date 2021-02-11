@@ -16,22 +16,11 @@ financial system. It cannot discriminate against people for whatever reason.
 Let's look at some examples:
 
 
-  * Here's a [video](https://twitter.com/gladstein/status/1357757736394444800)
-   by [Alex Gladstein](https://twitter.com/gladstein) of the [Human Rights
-   Foundation](https://hrf.org/) enumerating humanitarian causes that Bitcoin
-   has been useful for. Here's a
-   [thread](https://threadreaderapp.com/thread/1340836877595594752.html), if you
-   prefer text.
+* Here's a [video](https://twitter.com/gladstein/status/1357757736394444800) by [Alex Gladstein](https://twitter.com/gladstein) of the [Human Rights Foundation](https://hrf.org/) enumerating humanitarian causes that Bitcoin has been useful for. Here's a [thread](https://threadreaderapp.com/thread/1340836877595594752.html), if you prefer text.
   
-  * [As a prominent
-example](https://web.archive.org/web/20201108012753/https://www.forbes.com/sites/rogerhuang/2019/04/26/how-bitcoin-and-wikileaks-saved-each-other/),
-Wikileaks probably wouldn't exist anymore if it wasn't for Bitcoin enabling
-donations for them when the US government pressured other payment providers into
-blocking them.
+* [As a prominent example](https://web.archive.org/web/20201108012753/https://www.forbes.com/sites/rogerhuang/2019/04/26/how-bitcoin-and-wikileaks-saved-each-other/), Wikileaks probably wouldn't exist anymore if it wasn't for Bitcoin enabling donations for them when the US government pressured other payment providers into blocking them.
   
-  * [Here](https://medium.com/open-money-initiative/latin-american-bitcoin-trading-follows-the-heartbeat-of-venezuela-71a28cb86ba0)
-    is a fascinating analysis of Bitcoin serving as a vehicle currency in Latin
-    America.
+* [Here](https://medium.com/open-money-initiative/latin-american-bitcoin-trading-follows-the-heartbeat-of-venezuela-71a28cb86ba0) is a fascinating analysis of Bitcoin serving as a vehicle currency in Latin America.
 
 If you find Bitcoin useless for yourself, you should call yourself lucky.
 
@@ -57,32 +46,14 @@ since at least 2019. On the other hand, the value of Bitcoin, as well as the
 estimated number of its users, has been rising over many orders of magnitude
 since 2009. How can this be possible?
 
-  * In recent years, long term store of value has become Bitcoin's main use
-    case. That is, people use it more for storing their savings than for paying
-    for goods and services.
+* In recent years, long term store of value has become Bitcoin's main use case. That is, people use it more for storing their savings than for paying for goods and services.
   
-  * Its current usage is thus more comparable to gold, which is also rarely used
-    in transactions. I have never seen anybody calculate the energy cost of gold
-    mining plus handling divided by the number of physical gold shipments.
-    Probably because that's as misleading a number as the equivalent in Bitcoin.
+* Its current usage is thus more comparable to gold, which is also rarely used in transactions. I have never seen anybody calculate the energy cost of gold mining plus handling divided by the number of physical gold shipments. Probably because that's as misleading a number as the equivalent in Bitcoin.
   
-  * Just as with gold, there are ways to make even small transactions quickly
-    and cheaply with Bitcoin. Most real-world transactions use one of these
-    off-chain methods. Probably the most popular today are custodial services
-    like exchanges. Sending bitcoin from one customer to another on a service
-    like this just requires changing two numbers in their database and is the
-    equivalent of gold in a bank changing owners. It's hard to say how many such
-    transactions there are, since there are many "bitcoin banks" and their
-    numbers are proprietary, but it's safe to say they dwarf on-chain
-    transactions by orders of magnitude.
+* Just as with gold, there are ways to make even small transactions quickly and cheaply with Bitcoin. Most real-world transactions use one of these
+  off-chain methods. Probably the most popular today are custodial services like exchanges. Sending bitcoin from one customer to another on a service like this just requires changing two numbers in their database and is the equivalent of gold in a bank changing owners. It's hard to say how many such transactions there are, since there are many "bitcoin banks" and their numbers are proprietary, but it's safe to say they dwarf on-chain transactions by orders of magnitude.
   
-  * Unlike gold, there are methods of transacting Bitcoin off-chain that require
-    less trust in intermediaries, such as the Lightning Network or Blockstream's
-    Liquid federation. With a growing demand in transactions, such alternatives
-    are refined and gain popularity, without this being reflected in the above
-    numbers. With the Lightning Network, it's even difficult to estimate how
-    many transactions are being performed, since there is no central ledger
-    recording them all.
+* Unlike gold, there are methods of transacting Bitcoin off-chain that require less trust in intermediaries, such as the Lightning Network or Blockstream's Liquid federation. With a growing demand in transactions, such alternatives are refined and gain popularity, without this being reflected in the above numbers. With the Lightning Network, it's even difficult to estimate how many transactions are being performed, since there is no central ledger recording them all.
   
 ## But I have read that Visa transactions are much more economical! 
   
@@ -124,28 +95,24 @@ economically (which they mostly appear to do) it should converge toward the
 block reward, which in turn is composed of the block subsidy ("new bitcoins
 being mined") and the mining fees ("what people pay to get their transactions
 into a block"). The block subsidy is halving every 210.000 blocks (about 4
-years), which has happened thrice already, so it has gone down from 50 btc to
+years), which has happened thrice already, so it has gone down from 50 BTC to
 6.25 bitcoin today and is further exponentially declining --- when calculated in
-btc. The mining fees have substantially picked up over the last few years and
+BTC. The mining fees have substantially picked up over the last few years and
 are now at about 15% of the block reward. It is important for Bitcoin's future
 security (when the subsidy has declined further) that these remain substantial.
 How substantial? Nobody knows. The hope is that the market will find out.
 
 Of course, when denominated in, say, USD, the cost of mining has not fallen but
-risen exponentially in the past 12 years, because of price of bitcoin has risen
+risen exponentially in the past 12 years, because the price of bitcoin has risen
 even more. But it is important to observe that 
 
-* mining cost is rising exponentially lower than hash rate (because of
-  technology improvements)
+* mining cost is rising exponentially slower than hash rate (because of technology improvements)
 
-* mining cost is rising exponentially lower than bitcoin price (because of halvenings)
+* mining cost is rising exponentially slower than bitcoin price (because of halvenings)
 
-* mining cost in BTC is relatively easy to predict in the near future (as long
-  as it's dominated by subsidies)
+* mining cost in BTC is relatively easy to predict in the near future (as long as it's dominated by subsidies)
 
-* mining cost in USD is mostly dependent on the price of bitcoin, has been
-  growing exponentially so far, but might top out when the bitcoin price stops
-  growing by more than 100% every four years
+* mining cost in USD is mostly dependent on the price of bitcoin, has been growing exponentially so far, but might top out when the bitcoin price stops growing by more than 100% every four years
 
 Now for the third metric. Energy use depends on many factors. Mining cost is
 probably the most obvious one. Availability, longevity and cost of mining
@@ -155,12 +122,11 @@ price of the electricity used. As Bitcoin mining has become a more mature,
 miners have become both industrial size energy users and mobile enough to seek
 out the cheapest energy on earth. This has fascinating consequences:
 
-* energy use might have grown more than mining cost, due to miners gaining
-  access to cheaper energy 
-* the energy that miners use today is mostly very cheap, because it is mostly
-  surplus
-* energy use is inversely correlated with energy price. So if regulators succeed
-  in raising the price of dirty energy, miners will use less of it.
+* energy use might have grown more than mining cost, due to miners gaining access to cheaper energy 
+
+* the energy that miners use today is mostly very cheap, because it is mostly surplus
+
+* energy use is inversely correlated with energy price. So if regulators succeed in raising the price of dirty energy, miners will use less of it.
   
 Which brings us to the final and most decisive metric, CO2 emissions. It is the
 most difficult to measure and predict, because it depends critically not only on
@@ -169,12 +135,14 @@ mining operations are not very public. This leads to the existing research (see
 [our sources](sources)) being imprecise in deducing CO2 emissions from energy
 use. Although the estimates of the percentage of renewable energy used in mining
 vary, it is relatively safe to say it exceeds that of most countries by far.
-Since the studies mostly get from energy use to CO2 emissions by estimating the
-amount of mining in a region and then multiplying by the average carbon
-footprint of energy production in that region they are probably overestimating.
-In fact, there are two key questions here:
+Since the studies extrapolate from power usage to CO2 emissions by estimating
+the amount of mining in a region and then multiplying by the average carbon
+footprint of energy production in that region, they are probably overestimating.
+In fact, there are two key questions here, and the second one has not
+been addressed at all in academic research, as far as we know:
 
 * how much Co2 is emitted by the energy production?
+
 * what would have happened otherwise, if the Bitcoin mining didn't happen?
 
 There is substantial evidence that for both of these questions, the trend is

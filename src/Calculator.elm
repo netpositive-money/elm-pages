@@ -2,6 +2,7 @@ module Calculator exposing (emptySelection, init, request1, request2, subscripti
 import Element exposing (alignRight)
 import Element exposing (alignLeft)
 import Element exposing (fill)
+import Element.Font as Font exposing (size)
 
 import Browser.Dom exposing (getViewport)
 import Browser.Events exposing (onResize)
@@ -415,13 +416,13 @@ view data tbtc model =
                                         , label = text "paper by Stoll et. al."
                                       }
                                  ]
-                          , paragraph[][chart1 data model |> html]
+                          , paragraph[Font.size 12][chart1 data model |> html]
                           , paragraph []
                               [ text """The second graph shows the total amount of CO2 emitted by Bitcoin mining
                                       obtained by summing up the above data. You can restrict the calculation to a time interval
                                       by clicking and dragging or entering the start and end months below.
                                       """ ]
-                          , paragraph [] [html <| chart2 compound model]
+                          , paragraph [Font.size 12] [html <| chart2 compound model]
                           , paragraph []
                           [ lazy (Input.text [alignLeft]){placeholder=Nothing, text=s, onChange=(ChangeStart compound),label=labelAbove[]<| text"start month" }
                           , lazy (Input.text [alignRight]){placeholder=Nothing, text=e, onChange=(ChangeEnd compound),label=labelAbove[]<| text"end month" }
@@ -471,12 +472,13 @@ view data tbtc model =
 
 -- MAIN CHARTS
 
+localWidth model = min model.width maxWidth
 
 chart1 : Data -> Model -> Html.Html Msg
 chart1 data model =
     LineChart.viewCustom
         (chartConfig
-            { y = yAxis1 model.height
+            { y = yAxis1 (localWidth model)
             , area = Area.normal 0.5
             , range = Range.default
             , junk =
@@ -488,7 +490,7 @@ chart1 data model =
             , legends = Legends.default
             , dots = Dots.custom (Dots.full 0)
             , id = "line-chart"
-            , width = min model.width maxWidth
+            , width = localWidth model
             }
         )
         [ LineChart.line Colors.pink Dots.circle "CO2" data ]
@@ -498,7 +500,7 @@ chart2 : Data -> Model -> Html.Html Msg
 chart2 compound model =
     LineChart.viewCustom
         (chartConfig
-            { y = yAxis2 model.height
+            { y = yAxis2 (localWidth model)
             , area = Area.default
             , range = Range.default
             , junk = junkConfig model
@@ -513,7 +515,7 @@ chart2 compound model =
                     ]
             , dots = Dots.custom (Dots.full 0)
             , id = "line-chart"
-            , width = min model.width maxWidth
+            , width = localWidth model
             }
         )
         [ LineChart.line Colors.blue Dots.circle "CO2" compound ]
